@@ -20,7 +20,8 @@ class Game:
         self.chat = None
         self.state = 'in_main_menu'
 
-        self.server_interface = None  # server_interface.ServerInterface()
+        self.server_interface = server_interface.ServerInterface(
+            meta_data_name='test')
 
     def loop(self):
         for event in pg.event.get():

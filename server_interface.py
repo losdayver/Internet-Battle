@@ -1,7 +1,8 @@
 from settings import *
 import socket
-import local_server
+import server
 import json
+from multiprocessing import Process
 
 
 class ServerInterface:
