@@ -12,7 +12,6 @@ class Game:
     def __init__(self):
         pg.init()
         self.screen = pg.display.set_mode(SCREEN_RESOLUTION)
-        self.fps = 30
         self.clock = pg.time.Clock()
 
         self.room = None
@@ -23,9 +22,30 @@ class Game:
         self.server_interface = server_interface.ServerInterface(
             meta_data_name='test')
 
+        self.text_field1 = TextField(50, 20, self)
+        self.text_field2 = TextField(50, 20, self)
+
+        self.events = pg.event.get()
+
+    def processMainMenu(self):
+        self.screen.fill([0, 128, 0])
+
+        self.text_field1.process([self.screen.get_size()[
+            0] / 2 - self.text_field1.surf.get_size()[0] / 2, 0])
+
+        self.text_field2.process([self.screen.get_size()[
+            0] / 2 - self.text_field2.surf.get_size()[0] / 2, 100])
+
+        pg.display.flip()
+
+    def processRoom(self):
+        pass
+
     def loop(self):
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
+        self.events = pg.event.get()
+
+        for e in self.events:
+            if e.type == pg.QUIT:
                 quit()
 
         if self.state == 'in_main_menu':
@@ -33,11 +53,47 @@ class Game:
         elif self.state == 'in_room':
             self.processRoom()
 
-        self.clock.tick(self.fps)
+        self.clock.tick(FPS)
 
-    def processMainMenu(self):
-        self.screen.fill([0, 128, 0])
-        pg.display.flip()
 
-    def processRoom(self):
-        pass
+class TextField:
+    def __init__(self, font_size, max_char, game):
+        self.font_size = font_size
+        self.max_char = max_char
+        self.game = game
+        self.active = False
+
+        self.surf = pg.Surface((max_char * font_size / 2, font_size * 1.5))
+        self.surf.fill([255, 255, 255])
+
+        self.font = pg.font.Font(
+            './resources/fonts/Comic Sans MS.ttf', self.font_size)
+
+        self.text = 'enter name'
+
+    def process(self, coords):
+        self.surf.fill([255, 255, 255])
+
+        img = self.font.render(self.text, True, [0, 0, 0])
+        self.surf.blit(img, [self.surf.get_size()[
+                       0] / 2 - img.get_size()[0] / 2, 0])
+
+        if self.active:
+            pg.draw.rect(self.surf, [0, 0, 0], pg.Rect(
+                0, 0, self.surf.get_size()[0], self.surf.get_size()[1]), 5)
+
+        self.game.screen.blit(self.surf, coords)
+
+        for event in self.game.events:
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if coords[0] < event.pos[0] < coords[0] + self.surf.get_size()[0] and \
+                        coords[1] < event.pos[1] < coords[1] + self.surf.get_size()[1]:
+                    self.active = True
+                else:
+                    self.active = False
+
+            if event.type == pg.KEYDOWN and self.active:
+                if event.key == pg.K_BACKSPACE:
+                    self.text = self.text[:-1]
+                else:
+                    self.text += event.unicode
