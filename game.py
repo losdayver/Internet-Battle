@@ -22,19 +22,22 @@ class Game:
         self.server_interface = server_interface.ServerInterface(
             meta_data_name='test')
 
-        self.text_field1 = TextField(50, 20, self)
-        self.text_field2 = TextField(50, 20, self)
+        self.text_field = TextField(50, 20, self)
 
         self.events = pg.event.get()
 
     def processMainMenu(self):
         self.screen.fill([0, 128, 0])
 
-        self.text_field1.process([self.screen.get_size()[
-            0] / 2 - self.text_field1.surf.get_size()[0] / 2, 0])
+        for event in self.events:
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_RETURN:
+                    print('Участок кода для отправки запроса подключения на сервер')
 
-        self.text_field2.process([self.screen.get_size()[
-            0] / 2 - self.text_field2.surf.get_size()[0] / 2, 100])
+        self.text_field.process([
+            self.screen.get_size()[0] / 2 -
+            self.text_field.surf.get_size()[0] / 2,
+            self.screen.get_size()[1] / 2 - self.text_field.surf.get_size()[1] / 2])
 
         pg.display.flip()
 
@@ -96,4 +99,5 @@ class TextField:
                 if event.key == pg.K_BACKSPACE:
                     self.text = self.text[:-1]
                 else:
-                    self.text += event.unicode
+                    if event.unicode in 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890':
+                        self.text += event.unicode
