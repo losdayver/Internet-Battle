@@ -29,6 +29,8 @@ class Server:
             for addr in self.client_addresses:
                 self.serv_sock.sendto('bless you'.encode('utf-8'), addr)
 
+            self.client_addresses = []
+
 
 serv = Server(('', 5888))
 serv.loop()

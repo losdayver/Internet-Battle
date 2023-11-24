@@ -1,6 +1,7 @@
 import pygame as pg
 from settings import *
 import server_interface
+import socket
 
 
 class Game:
@@ -19,8 +20,7 @@ class Game:
         self.chat = None
         self.state = 'in_main_menu'
 
-        self.server_interface = server_interface.ServerInterface(
-            meta_data_name='test')
+        self.server_interface = server_interface.ServerInterface()
 
         self.text_field = TextField(50, 20, self)
 
@@ -33,6 +33,8 @@ class Game:
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_RETURN:
                     print('Участок кода для отправки запроса подключения на сервер')
+
+                    self.server_interface.connectToServer(self.text_field.text)
 
         self.text_field.process([
             self.screen.get_size()[0] / 2 -
@@ -99,5 +101,14 @@ class TextField:
                 if event.key == pg.K_BACKSPACE:
                     self.text = self.text[:-1]
                 else:
-                    if event.unicode in 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890':
+                    if event.unicode in ' qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890' and \
+                            len(self.text) < self.max_char:
                         self.text += event.unicode
+
+
+class Button:
+    pass
+
+
+class Switch:
+    pass
