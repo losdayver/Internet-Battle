@@ -35,8 +35,8 @@ class Server:
                 if obj == 'connection_data':
                     print(f'connection request from {packet.address}')
 
-                    payload = json.dumps({'connection_data': {'status': 'accept'}}).replace(
-                        ' ', '').replace('\n', '')
+                    payload = json.dumps(
+                        {'connection_data': {'status': 'accept'}}, separators=(',', ':'))
 
                     self.ready_packets.append(
                         Packet(payload.encode('utf-8'), packet.address))

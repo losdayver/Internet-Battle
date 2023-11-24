@@ -38,7 +38,7 @@ class ServerInterface:
             'connection_data': {
                 'method': 'connect'
             }
-        }).replace(' ', '').replace('\n', '')
+        }, separators=(',', ':'))
 
         self.socket.sendto(payload.encode('utf-8'), SERVER_ADDRESS)
 
