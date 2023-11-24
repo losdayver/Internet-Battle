@@ -1,8 +1,15 @@
 import socket
 import select
+import json
 
 if __name__ != '__main__':
     quit()
+
+
+class Packet:
+    def __init__(self, payload, address):
+        self.payload = payload
+        self.address = address
 
 
 class Server:
@@ -11,25 +18,57 @@ class Server:
         self.serv_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.serv_sock.bind(self.address)
         self.serv_sock.setblocking(False)
-        self.client_addresses = []
+
+        self.recv_packets = []
+        self.ready_packets = []
 
     def loop(self):
-        inputs = [self.serv_sock]
         while True:
-            readable, writeable, exceptional = select.select(
-                inputs, [], inputs, 0.01)
+            self.sendRecievePackets()
+            self.processPackets()
 
-            for sock in readable:
-                msg, client_address = sock.recvfrom(1024)
-                print(f'Connected by {client_address} with data {msg}')
-                if client_address not in self.client_addresses:
-                    self.client_addresses.append(client_address)
+    def processPackets(self):
+        packets_to_delete = []
 
-            # for disconnecting need to implement "ping" packet
-            for addr in self.client_addresses:
-                self.serv_sock.sendto('bless you'.encode('utf-8'), addr)
+        for packet in self.recv_packets:
+            for obj in packet.payload:
+                if obj == 'connection_data':
+                    print(f'connection request from {packet.address}')
 
-            self.client_addresses = []
+                    payload = json.dumps({'connection_data': {'status': 'accept'}}).replace(
+                        ' ', '').replace('\n', '')
+
+                    self.ready_packets.append(
+                        Packet(payload.encode('utf-8'), packet.address))
+
+            packets_to_delete.append(packet)
+
+        for packet in packets_to_delete:
+            self.recv_packets.remove(packet)
+
+    def sendRecievePackets(self):
+        inputs = [self.serv_sock]
+
+        readable, _, _ = select.select(
+            inputs, [], inputs, 0.01)
+
+        for sock in readable:
+            data, client_address = sock.recvfrom(1024)
+
+            try:
+                payload = json.loads(data)
+                self.recv_packets.append(Packet(payload, client_address))
+            except:
+                pass
+
+        packets_to_remove = []
+
+        for packet in self.ready_packets:
+            self.serv_sock.sendto(packet.payload, packet.address)
+            packets_to_remove.append(packet)
+
+        for packet in packets_to_remove:
+            self.ready_packets.remove(packet)
 
 
 serv = Server(('', 5888))

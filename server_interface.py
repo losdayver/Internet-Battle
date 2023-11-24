@@ -3,6 +3,7 @@ import socket
 import json
 import threading
 import select
+import json
 
 
 class ServerInterface:
@@ -25,15 +26,21 @@ class ServerInterface:
                 inputs, [], inputs, 0.01)
 
             for sock in readable:
-                print('got something')
                 msg, server_address = sock.recvfrom(1024)
                 if server_address == SERVER_ADDRESS:
                     print(msg)
-                    self.socket.sendto(
-                        'no, bless you!'.encode('utf-8'), SERVER_ADDRESS)
 
     def connectToServer(self, name):
-        self.socket.sendto(name.encode('utf-8'), SERVER_ADDRESS)
+        payload = json.dumps({
+            'meta_data': {
+                'name': name
+            },
+            'connection_data': {
+                'method': 'connect'
+            }
+        }).replace(' ', '').replace('\n', '')
+
+        self.socket.sendto(payload.encode('utf-8'), SERVER_ADDRESS)
 
     def sendKeys(self, pressed_keys, released_keys):
         if SERVER_DEBUG:
@@ -42,12 +49,6 @@ class ServerInterface:
             pass
 
     def sendChatMessage(self):
-        if SERVER_DEBUG:
-            pass
-        else:
-            pass
-
-    def recieveDataObject(self):
         if SERVER_DEBUG:
             pass
         else:
