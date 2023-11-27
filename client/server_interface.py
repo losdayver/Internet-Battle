@@ -1,55 +1,42 @@
-from settings import *
 import socket
-import json
-import threading
 import select
-import json
+import threading
+from globals import *
+
+client_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+client_sock.setblocking(False)
+
+received_packets = []
+
+packets_to_send = []
 
 
-class ServerInterface:
-    def __init__(self):
-        self.socket = self.socket = socket.socket(
-            socket.AF_INET, socket.SOCK_DGRAM)
+def loop():
+    inputs = [client_sock]
 
-        self.socket.setblocking(False)
-        self.messages = []
+    while True:
+        readable, _, _ = select.select(
+            inputs, [], inputs, 0.01)
 
-        self.thread = threading.Thread(
-            target=self.recieveMessages)
+        for sock in readable:
+            msg, server_address = sock.recvfrom(1024)
 
-        self.thread.start()
+            # Here packets are decoded, tested for errors and a put into received_packets
 
-    def recieveMessages(self):
-        inputs = [self.socket]
-        while True:
-            readable, writeable, exceptional = select.select(
-                inputs, [], inputs, 0.01)
+        # Here all packets from packets_to_send are sent to server
 
-            for sock in readable:
-                msg, server_address = sock.recvfrom(1024)
-                if server_address == SERVER_ADDRESS:
-                    print(msg)
 
-    def connectToServer(self, name):
-        payload = json.dumps({
-            'meta_data': {
-                'name': name
-            },
-            'connection_data': {
-                'method': 'connect'
-            }
-        }, separators=(',', ':'))
+loop_thread = threading.Thread(target=loop)
 
-        self.socket.sendto(payload.encode('utf-8'), SERVER_ADDRESS)
+# This class contains static functions that generate packets and put them inside packets_to_send
 
-    def sendKeys(self, pressed_keys, released_keys):
-        if SERVER_DEBUG:
-            pass
-        else:
-            pass
 
-    def sendChatMessage(self):
-        if SERVER_DEBUG:
-            pass
-        else:
-            pass
+class GeneratePacket:
+    def connect():
+        pass
+
+    def disconnect():
+        pass
+
+    def input():
+        pass

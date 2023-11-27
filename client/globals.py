@@ -1,5 +1,7 @@
+import pygame
 from pygame import locals as l
 
+# VARIABLES
 SCREEN_RESOLUTION = (800, 600)
 FPS = 30
 KEYBOARD_LAYOUT = {
@@ -12,3 +14,8 @@ KEYBOARD_LAYOUT = {
 
 SERVER_ADDRESS = ('127.0.0.1', 5888)
 SERVER_DEBUG = True
+
+# GLOBAL CODE
+WINDOW_SURFACE = pygame.display.set_mode(SCREEN_RESOLUTION)
+CLOCK = pygame.time.Clock()
+IS_RUNNING = True
