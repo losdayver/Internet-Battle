@@ -16,6 +16,8 @@ SERVER_ADDRESS = ('127.0.0.1', 5888)
 SERVER_DEBUG = True
 
 # GLOBAL CODE
+pygame.display.set_caption('Internet Battle! Prototype 1')
 WINDOW_SURFACE = pygame.display.set_mode(SCREEN_RESOLUTION)
 CLOCK = pygame.time.Clock()
+pygame.init()
 IS_RUNNING = True

@@ -1,28 +1,38 @@
-from globals import *
+from global_scope import *
 import pygame
 import pygame_gui
 
 
 main_menu_manager = pygame_gui.UIManager(SCREEN_RESOLUTION)
+connect_manager = pygame_gui.UIManager(SCREEN_RESOLUTION)
+connection_status_manager = pygame_gui.UIManager(SCREEN_RESOLUTION)
 
 
-start_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 200), (100, 50)),
+start_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((250, 200), (300, 50)),
                                             text='Start Game',
                                             manager=main_menu_manager)
 
-settings_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 275), (100, 50)),
+settings_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((250, 275), (300, 50)),
                                                text='Settings',
                                                manager=main_menu_manager)
 
-exit = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 345), (100, 50)),
-                                    text='Exit',
-                                    manager=main_menu_manager)
+exit_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((250, 345), (300, 50)),
+                                           text='Exit',
+                                           manager=main_menu_manager)
 
-connect_manager = pygame_gui.UIManager((800, 600))
 
-start_text_field = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((350, 200), (100, 50)),
+start_text_field = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((250, 200), (300, 50)),
                                                        manager=connect_manager)
 
-connect_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 275), (100, 50)),
+connect_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((250, 275), (300, 50)),
                                               text='Connect',
                                               manager=connect_manager)
+
+
+status_text_field = pygame_gui.elements.UILabel(relative_rect=pygame.Rect((250, 200), (300, 50)),
+                                                manager=connection_status_manager,
+                                                text='Waiting for response from server...')
+
+cancel_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((250, 275), (300, 50)),
+                                             text='Cancel',
+                                             manager=connection_status_manager)
