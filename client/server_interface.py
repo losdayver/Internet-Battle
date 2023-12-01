@@ -32,9 +32,11 @@ def loop():
             packet = json.loads(data)
 
             received_packets.append(packet)
+            print(received_packets)
 
         # Here all packets from packets_to_send are sent to server
         while packets_to_send:
+            print(packets_to_send)
             packet = packets_to_send.pop()
             packet_str = json.dumps(packet, separators=(',', ':'))
             client_sock.sendto(packet_str.encode('utf-8'),

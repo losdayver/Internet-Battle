@@ -3,11 +3,11 @@ from managers import *
 import pygame_gui
 import pygame
 import server_interface
-
-current_manager = main_menu_manager
+import game
 
 # Temp variables for main loop logic
-is_connecting = False
+current_manager = main_menu_manager
+current_state = 'menu'  # menu/connecting/game
 
 while global_scope.IS_RUNNING:
     WINDOW_SURFACE.fill((0, 100, 0))
@@ -33,24 +33,33 @@ while global_scope.IS_RUNNING:
                     current_manager = connection_status_manager
                     server_interface.GeneratePacket.connect(
                         start_text_field.get_text())
-                    is_connecting = True
+                    current_state = 'connecting'
 
             elif current_manager == connection_status_manager:
                 if event.ui_element == cancel_button:
                     current_manager = main_menu_manager
-                    is_connecting = False
+                    current_state = 'menu'
+
+            elif current_manager == game_manager:
+                pass
 
         current_manager.process_events(event)
 
     # General logic
-    if is_connecting:
+    if current_state == 'connecting':
         if server_interface.received_packets:
             packet = server_interface.received_packets.pop()
             if packet['type'] == 'connection':
-                if packet['status'] == 'accept':
-                    pass
-                elif packet['status'] == 'reject':
-                    pass
+                if packet['action'] == 'accept':
+                    global_scope.GAME = game.Game(packet['uid'])
+                    current_manager = game_manager
+                    current_state = 'game'
+                    current_manager = game_manager
+                elif packet['action'] == 'reject':
+                    status_text_field.set_text(packet['reason'])
+
+    elif current_state == 'game':
+        global_scope.GAME.loop_tick()
 
     current_manager.update(time_delta)
 

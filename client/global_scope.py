@@ -21,3 +21,4 @@ WINDOW_SURFACE = pygame.display.set_mode(SCREEN_RESOLUTION)
 CLOCK = pygame.time.Clock()
 pygame.init()
 IS_RUNNING = True
+GAME = None
