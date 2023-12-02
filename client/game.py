@@ -9,7 +9,7 @@ class Game:
     def __init__(self, uid):
         self.uid = uid
 
-    def loop_tick(self):
+    def loop_tick(self, event):
         # process packets and logic
         for i in range(Game.packets_per_tick):
             try:

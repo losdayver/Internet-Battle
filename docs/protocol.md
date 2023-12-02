@@ -70,10 +70,15 @@ type - строковое поле, описывающее тип пакета
         "method": "file",
         "file_name": "map1.json"
     },
-    "dynamic": {
+    "dynamic": [
+        {
+            "type": box,
+            "id": 12,
+            "position": [120, 12],
+            "vector": [10, 0]
+        }
+    ],
+    "scenic": [
 
-    },
-    "scenic": {
-
-    }
+    ]
 }

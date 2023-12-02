@@ -6,8 +6,7 @@ import server_interface
 import game
 
 # Temp variables for main loop logic
-current_manager = main_menu_manager
-current_state = 'menu'  # menu/connecting/game
+global_scope.CURRENT_MANAGER = main_menu_manager
 
 while global_scope.IS_RUNNING:
     WINDOW_SURFACE.fill((0, 100, 0))
@@ -20,49 +19,45 @@ while global_scope.IS_RUNNING:
 
         # UI elements logic
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
-            if current_manager == main_menu_manager:
+
+            if global_scope.CURRENT_MANAGER == main_menu_manager:
                 if event.ui_element == start_button:
-                    current_manager = connect_manager
+                    global_scope.CURRENT_MANAGER = connect_manager
                 elif event.ui_element == settings_button:
                     settings_button.hide()
                 elif event.ui_element == exit_button:
                     global_scope.IS_RUNNING = False
 
-            elif current_manager == connect_manager:
+            elif global_scope.CURRENT_MANAGER == connect_manager:
                 if event.ui_element == connect_button:
-                    current_manager = connection_status_manager
+                    global_scope.CURRENT_MANAGER = connection_status_manager
                     server_interface.GeneratePacket.connect(
                         start_text_field.get_text())
-                    current_state = 'connecting'
+                    global_scope.CURRENT_MANAGER = connection_status_manager
 
-            elif current_manager == connection_status_manager:
+            elif global_scope.CURRENT_MANAGER == connection_status_manager:
                 if event.ui_element == cancel_button:
-                    current_manager = main_menu_manager
-                    current_state = 'menu'
+                    global_scope.CURRENT_MANAGER = main_menu_manager
 
-            elif current_manager == game_manager:
-                pass
-
-        current_manager.process_events(event)
+        global_scope.CURRENT_MANAGER.process_events(event)
 
     # General logic
-    if current_state == 'connecting':
+    if global_scope.CURRENT_MANAGER == connection_status_manager:
         if server_interface.received_packets:
             packet = server_interface.received_packets.pop()
             if packet['type'] == 'connection':
                 if packet['action'] == 'accept':
                     global_scope.GAME = game.Game(packet['uid'])
-                    current_manager = game_manager
+                    global_scope.CURRENT_MANAGER = game_manager
                     current_state = 'game'
-                    current_manager = game_manager
                 elif packet['action'] == 'reject':
                     status_text_field.set_text(packet['reason'])
 
-    elif current_state == 'game':
-        global_scope.GAME.loop_tick()
+    elif global_scope.CURRENT_MANAGER == game_manager:
+        global_scope.GAME.loop_tick(event)
 
-    current_manager.update(time_delta)
+    global_scope.CURRENT_MANAGER.update(time_delta)
 
-    current_manager.draw_ui(global_scope.WINDOW_SURFACE)
+    global_scope.CURRENT_MANAGER.draw_ui(global_scope.WINDOW_SURFACE)
 
     pygame.display.update()

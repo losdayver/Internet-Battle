@@ -14,6 +14,7 @@ KEYBOARD_LAYOUT = {
 
 SERVER_ADDRESS = ('127.0.0.1', 5888)
 SERVER_DEBUG = True
+CURRENT_MANAGER = None
 
 # GLOBAL CODE
 pygame.display.set_caption('Internet Battle! Prototype 1')
