@@ -38,3 +38,6 @@ send_message_field = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Re
 send_message_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((160, 550), (80, 40)),
                                                    text='Send',
                                                    manager=game_manager)
+chat_messages_field = pygame_gui.elements.UILabel(relative_rect=pygame.Rect((0, 0), (200, 600)),
+                                                  manager=game_manager,
+                                                  text='')

@@ -2,6 +2,7 @@ import server_interface
 import global_scope
 import pygame
 import json
+import managers
 
 
 class Game:
@@ -21,6 +22,14 @@ class Game:
                     if packet['static']['method'] == 'file':
                         self.scene = Scene(
                             packet['static']['file'], packet['dynamic'])
+
+                elif packet['type'] == 'chat_data':
+                    text = ''
+
+                    for m in packet['messages']:
+                        text += f'{m["author"]}: {m["text"]}\r\n'
+
+                    managers.chat_messages_field.set_text(text)
 
             except Exception as e:
                 pass
@@ -76,8 +85,3 @@ class Scene:
                 global_scope.RESOURCES_PATH + 'sprites/export/' + j['image'])
 
         self.dynamic = dynamic
-
-
-class Dynamic:
-    def __init__(self):
-        pass

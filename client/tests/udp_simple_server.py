@@ -29,6 +29,7 @@ try:
         print('2) connection: reject')
         print('3) send scene_data1')
         print('4) send scene_data2')
+        print('5) send chat_data')
 
         inp = int(input())
 
@@ -87,6 +88,17 @@ try:
                             'position': [10, 5],
                             'vector': [0.1, 0.0]
                         }
+                    ]
+                }
+            ).encode('utf-8'), address)
+        elif inp == 5:
+            sock.sendto(json.dumps(
+                {
+                    'type': 'chat_data',
+                    'messages': [
+                        {'author': 'Vasiya', 'text': 'privet!'},
+                        {'author': 'Vitya', 'text': 'zdarova!'},
+                        {'author': 'superman', 'text': 'GG'},
                     ]
                 }
             ).encode('utf-8'), address)
