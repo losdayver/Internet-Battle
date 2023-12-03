@@ -11,9 +11,6 @@ received_packets = []
 
 packets_to_send = []
 
-# Metadata is sent with every packet except when first connectiong
-meta_data = {}
-
 
 def loop():
     global packets_to_send, received_packets
@@ -22,7 +19,7 @@ def loop():
 
     while global_scope.IS_RUNNING:
         readable, _, _ = select.select(
-            inputs, [], inputs, 0.01)
+            inputs, [], inputs, 0.02)
 
         for sock in readable:
             data, server_address = sock.recvfrom(1024)
@@ -32,11 +29,10 @@ def loop():
             packet = json.loads(data)
 
             received_packets.append(packet)
-            print(received_packets)
 
         # Here all packets from packets_to_send are sent to server
+
         while packets_to_send:
-            print(packets_to_send)
             packet = packets_to_send.pop()
             packet_str = json.dumps(packet, separators=(',', ':'))
             client_sock.sendto(packet_str.encode('utf-8'),
@@ -60,9 +56,9 @@ class GeneratePacket:
         packets_to_send.append(packet)
 
     @staticmethod
-    def disconnect():
+    def disconnect(uid):
         packet = {
-            'metadata': meta_data,
+            'uid': uid,
             'type': 'connection',
             'action': 'disconnect'
         }
@@ -70,9 +66,9 @@ class GeneratePacket:
         packets_to_send.append(packet)
 
     @staticmethod
-    def input(pressed_list, released_list):
+    def input(uid, pressed_list, released_list):
         packet = {
-            'metadata': meta_data,
+            'uid': uid,
             'type': 'input',
             'pressed': pressed_list,
             'released': released_list

@@ -5,16 +5,23 @@ from pygame import locals as l
 SCREEN_RESOLUTION = (800, 600)
 FPS = 30
 KEYBOARD_LAYOUT = {
-    'jump': l.K_UP,
-    'left': l.K_LEFT,
-    'right': l.K_RIGHT,
-    'duck': l.K_DOWN,
-    'fire': l.K_LSHIFT
+    l.K_UP: 'jump',
+    l.K_LEFT: 'left',
+    l.K_RIGHT: 'right',
+    l.K_DOWN: 'duck',
+    l.K_LSHIFT: 'fire'
 }
 
 SERVER_ADDRESS = ('127.0.0.1', 5888)
 SERVER_DEBUG = True
 CURRENT_MANAGER = None
+
+GRID_SIZE = 32
+RESOURCES_PATH = './resources/'
+STEEL1_SPRITE = pygame.image.load(
+    RESOURCES_PATH + 'sprites/export/' + 'steel1.png')
+BOX1_SPRITE = pygame.image.load(
+    RESOURCES_PATH + 'sprites/export/' + 'box1.png')
 
 # GLOBAL CODE
 pygame.display.set_caption('Internet Battle! Prototype 1')

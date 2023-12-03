@@ -4,16 +4,21 @@ import pygame_gui
 import pygame
 import server_interface
 import game
+import os
+
+print(os.getcwd())
 
 # Temp variables for main loop logic
-global_scope.CURRENT_MANAGER = main_menu_manager
+global_scope.CURRENT_MANAGER = connect_manager
 
 while global_scope.IS_RUNNING:
     WINDOW_SURFACE.fill((0, 100, 0))
 
     time_delta = CLOCK.tick(global_scope.FPS)/1000.0
 
-    for event in pygame.event.get():
+    events = pygame.event.get()
+
+    for event in events:
         if event.type == pygame.QUIT:
             global_scope.IS_RUNNING = False
 
@@ -54,10 +59,10 @@ while global_scope.IS_RUNNING:
                     status_text_field.set_text(packet['reason'])
 
     elif global_scope.CURRENT_MANAGER == game_manager:
-        global_scope.GAME.loop_tick(event)
+        global_scope.GAME.loop_tick(events)
 
     global_scope.CURRENT_MANAGER.update(time_delta)
 
     global_scope.CURRENT_MANAGER.draw_ui(global_scope.WINDOW_SURFACE)
 
-    pygame.display.update()
+    pygame.display.flip()
