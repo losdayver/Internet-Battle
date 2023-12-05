@@ -75,3 +75,13 @@ class GeneratePacket:
         }
 
         packets_to_send.append(packet)
+
+    @staticmethod
+    def message(uid, text):
+        packet = {
+            'uid': uid,
+            'type': 'message',
+            'text': text
+        }
+
+        packets_to_send.append(packet)

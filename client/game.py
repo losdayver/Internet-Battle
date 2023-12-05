@@ -1,6 +1,7 @@
 import server_interface
 import global_scope
 import pygame
+import pygame_gui
 import json
 import managers
 
@@ -11,6 +12,7 @@ class Game:
     def __init__(self, uid):
         self.uid = uid
         self.scene = None
+        self.messages = []
 
     def loop_tick(self, events):
         # process packets
@@ -26,19 +28,23 @@ class Game:
                 elif packet['type'] == 'chat_data':
                     text = ''
 
-                    for m in packet['messages']:
-                        text += f'{m["author"]}: {m["text"]}\r\n'
-
-                    managers.chat_messages_field.set_text(text)
+                    self.messages = packet['messages']
 
             except Exception as e:
                 pass
 
         # process logic
+        for event in events:
+            if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                if event.ui_element == managers.send_message_button:
+                    server_interface.GeneratePacket.message(
+                        self.uid, managers.send_message_field.text)
+                    managers.send_message_field.set_text('')
+
         if self.scene:
             for d in self.scene.dynamic:
-                d['position'][0] += d['vector'][0]
-                d['position'][1] += d['vector'][1]
+                d['position'][0] += d['vector'][0] / global_scope.FPS
+                d['position'][1] += d['vector'][1] / global_scope.FPS
 
         # send packets
         pressed = []
@@ -73,6 +79,10 @@ class Game:
                 if d['type'] == 'box1':
                     global_scope.WINDOW_SURFACE.blit(
                         global_scope.BOX1_SPRITE, (d['position'][0]*global_scope.GRID_SIZE, d['position'][1]*global_scope.GRID_SIZE))
+
+        for i, message in enumerate(self.messages):
+            global_scope.WINDOW_SURFACE.blit(
+                global_scope.DEFAULT_FONT.render(f"{message['author']}: {message['text']}", 0, [255, 255, 255]), [10, 10 + i * global_scope.DEFAULT_FONT.get_height()])
 
 
 class Scene:

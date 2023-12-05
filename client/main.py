@@ -4,17 +4,14 @@ import pygame_gui
 import pygame
 import server_interface
 import game
-import os
-
-print(os.getcwd())
 
 # Temp variables for main loop logic
-global_scope.CURRENT_MANAGER = connect_manager
+global_scope.CURRENT_MANAGER = main_menu_manager
 
 while global_scope.IS_RUNNING:
-    WINDOW_SURFACE.fill((0, 100, 0))
+    global_scope.WINDOW_SURFACE.fill((0, 100, 0))
 
-    time_delta = CLOCK.tick(global_scope.FPS)/1000.0
+    time_delta = global_scope.CLOCK.tick(global_scope.FPS)/1000.0
 
     events = pygame.event.get()
 
@@ -26,7 +23,9 @@ while global_scope.IS_RUNNING:
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
 
             if global_scope.CURRENT_MANAGER == main_menu_manager:
+
                 if event.ui_element == start_button:
+
                     global_scope.CURRENT_MANAGER = connect_manager
                 elif event.ui_element == settings_button:
                     settings_button.hide()

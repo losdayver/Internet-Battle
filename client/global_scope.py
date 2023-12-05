@@ -26,7 +26,9 @@ BOX1_SPRITE = pygame.image.load(
 # GLOBAL CODE
 pygame.display.set_caption('Internet Battle! Prototype 1')
 WINDOW_SURFACE = pygame.display.set_mode(SCREEN_RESOLUTION)
-CLOCK = pygame.time.Clock()
 pygame.init()
+CLOCK = pygame.time.Clock()
+DEFAULT_FONT = pygame.font.Font(
+    f'{RESOURCES_PATH}fonts/Comic Sans MS.ttf', 12)
 IS_RUNNING = True
 GAME = None
