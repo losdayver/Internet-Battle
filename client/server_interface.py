@@ -6,29 +6,25 @@ import json
 
 client_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client_sock.setblocking(False)
+client_sock.settimeout(0.01)
 
 received_packets = []
 
 packets_to_send = []
 
-
 def loop():
     global packets_to_send, received_packets
 
-    inputs = [client_sock]
-
     while global_scope.IS_RUNNING:
-        readable, _, _ = select.select(
-            inputs, [], inputs, 0.02)
-
-        for sock in readable:
-            data, server_address = sock.recvfrom(1024)
+        try:
+            data, server_address = client_sock.recvfrom(1024)
 
             # Here packets are decoded, tested for errors and a put into received_packets
 
             packet = json.loads(data)
 
             received_packets.append(packet)
+        except: pass
 
         # Here all packets from packets_to_send are sent to server
 
