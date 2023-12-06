@@ -1,5 +1,8 @@
+import string
 import threading
 import queue
+import random
+import timeit
 
 
 class Player:
@@ -46,28 +49,41 @@ class Session:
     def getAllPlayersAddrs(self):
         return [i.addr for i in self.players.values()]
 
-    def startSimulatingAction(self, packet, meta):  # TODO подумать, отдельный процесс считать изменения и отправлять
+    def startSimulatingAction(self, uid, pressed, released):
         funcDict = self.startSimulatingAction.__dict__
 
         if meta["uid"] not in funcDict.keys():
             funcDict[meta["uid"]] = {"pressed"}
 
+    def checkAndSend(self):
+        start = timeit.default_timer()
+        changes = True
+        while True:
+            # check changes
+            if timeit.default_timer() - start >= self.sendFreq:
+                start = timeit.default_timer()
+                if changes:
+                    packet = ""
+                    self.sendMessage(self.getAllPlayersAddrs(), packet)
+
     def handleCommand(self, command, addr):
-        meta = command["meta"]
-        for key, value in command.items():
-            if key == "connection_data":
-                eventType = value["event_type"]
-                if eventType == "connect":  # TODO генерить uid тут
-                    self.players[meta["uid"]] = Player(meta["uid"], meta["name"], addr)
-                elif eventType == "disconnect":
-                    del self.players[meta["uid"]]
+        packetType = command["type"]
 
-                connPacket = self.generateConnectionData(meta["uid"], eventType)
-                self.sendMessage(self.getAllPlayersAddrs(), connPacket)
+        if packetType == "connection":
+            action = command["action"]
+            if action == "connect":
+                name = command["name"]
+                uid = self.genShortUID()
+                self.players[uid] = Player(uid, name, addr)
+            elif action == "disconnect":
+                uid = command["uid"]
+                del self.players[uid]
 
-            elif key == "input_data":
-                self.startSimulatingAction(value, meta)
+        elif packetType == "input":
+            uid = command["uid"]
+            pressed = command["pressed"]
+            released = command["released"]
+            self.startSimulatingAction(uid, pressed, released)
 
-            elif key == "message_data":  # TODO че с историей сообщений
-                msgPacket = self.generateChatData(meta["uid"], value)
-                self.sendMessage(self.getAllPlayersAddrs(), msgPacket)
+    def genShortUID(self):
+        return "".join([random.choice(string.ascii_letters + string.digits) for _ in range(8)])
