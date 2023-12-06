@@ -60,3 +60,7 @@ class Communicator:
 
     def send(self, message: bytes, addr):
         self.sock.sendto(message, addr)
+
+
+if __name__ == "__main__":
+    Communicator().run()
