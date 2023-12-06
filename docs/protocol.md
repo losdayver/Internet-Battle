@@ -34,6 +34,15 @@
 }
 ```
 
+Отправка сообщения:
+```json
+{
+    "uid": uid,
+    "type": "message",
+    "text": text
+}
+```
+
 ## Пакеты сервер -> клиент:
 
 Подтверждение принятия клиента в игровую комнату:
@@ -67,22 +76,31 @@
 }
 ```
 
+Дисконнект:
+```json
+{
+    "type": "connection",
+    "action": "disconnect",
+    "reason": <причина остановки>
+}
+```
+
 **[обсуждается]**
 Отправка информации о текущем состоянии комнаты
 ```json
 {
     "type": "scene_data",
-    "static": {
-        "method": "file",
-        "file": "map1.json"
-    },
-    "dynamic": [
-        {
+    "static": "map1.json",
+    "dynamic": {
+      "append": [{
             "type": "box1",
             "id": 1,
             "position": [5, 5],
             "vector": [0.0, 0.1]
-        }
-    ]
+        }],
+      "remove": [{
+        "type": "all"
+      }]
+  }
 }
 ```

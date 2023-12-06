@@ -33,7 +33,11 @@ class Communicator:
 
         while True:
             try:
-                content, addr = self.sock.recvfrom(self.packetSize)
+                try:
+                    content, addr = self.sock.recvfrom(self.packetSize)
+                except:
+                    continue
+
                 content = content.decode("utf-8")
 
                 self.commandHandler(content, addr)

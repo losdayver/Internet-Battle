@@ -23,6 +23,9 @@ class Room:  # логика игры
     def addInput(self, pressed, released, uid):
         pass
 
+    def removePlayer(self, uid):
+        pass
+
 
 class Session:
     def __init__(self, q, sq):
@@ -99,10 +102,12 @@ class Session:
                 self.players[uid] = Player(uid, name, addr)
                 packet = self.generateConnectionData(uid, action)
                 self.sendMessage(self.getAllPlayersAddrs(), packet)
+                self.addMessage("system", f"{self.players[uid].name} connected")
                 self.sendMessage(self.getAllPlayersAddrs(), self.generateChatData())
 
             elif action == "disconnect":
                 uid = command["uid"]
+                self.room.removePlayer(uid)
                 del self.players[uid]
 
         elif packetType == "input":
