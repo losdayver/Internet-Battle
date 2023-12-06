@@ -24,7 +24,8 @@ def loop():
             packet = json.loads(data)
 
             received_packets.append(packet)
-        except: pass
+        except:
+            pass
 
         # Here all packets from packets_to_send are sent to server
 

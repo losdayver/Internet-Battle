@@ -4,6 +4,7 @@ import pygame
 import pygame_gui
 import json
 import managers
+import os
 
 
 class Game:
@@ -32,6 +33,7 @@ class Game:
 
             except Exception as e:
                 pass
+
 
         # process logic
         for event in events:
@@ -87,11 +89,9 @@ class Game:
 
 class Scene:
     def __init__(self, map_file, dynamic):
-        with open(f'./resources/maps/{map_file}') as f:
+        with open(os.path.join(global_scope.RESOURCES_PATH, 'maps', map_file)) as f:
             j = json.load(f)
-
             self.static = j['static']
-            self.image = pygame.image.load(
-                global_scope.BACKGROUND1_SPRITE)
+            self.image = global_scope.BACKGROUND1_SPRITE
 
         self.dynamic = dynamic
