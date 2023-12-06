@@ -92,6 +92,6 @@ class Scene:
 
             self.static = j['static']
             self.image = pygame.image.load(
-                global_scope.RESOURCES_PATH + 'sprites/export/' + j['image'])
+                global_scope.BACKGROUND1_SPRITE)
 
         self.dynamic = dynamic
