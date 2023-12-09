@@ -20,12 +20,18 @@ CURRENT_MANAGER = None
 GRID_SIZE = 32
 RESOURCES_PATH = os.path.join(os.path.dirname(
     os.path.dirname(__file__)), 'resources')
-STEEL1_SPRITE = pygame.image.load(os.path.join(
-    RESOURCES_PATH, "sprites", "export", 'steel1.png'))
-BOX1_SPRITE = pygame.image.load(os.path.join(
-    RESOURCES_PATH, 'sprites', 'export', 'box1.png'))
-BACKGROUND1_SPRITE = pygame.image.load(os.path.join(
-    RESOURCES_PATH, 'sprites', 'export', 'starfield.png'))
+SPRITES_PATH = os.path.join(RESOURCES_PATH, 'sprites', 'export')
+MAPS_PATH = os.path.join(RESOURCES_PATH, 'maps')
+
+SPRITES = {
+    'starfield':
+    pygame.image.load(os.path.join(
+        SPRITES_PATH, 'starfield.png')),
+    'stone': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'stone.png')),
+    'box': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'box.png'))
+}
 
 # GLOBAL CODE
 pygame.display.set_caption('Internet Battle! Prototype 1')

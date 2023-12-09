@@ -13,7 +13,8 @@ class Communicator:
         self.packetSize = 1024
         self.gameSessions = {}
         self.sessionPID = 0
-        self.senderQueue = multiprocessing.Manager().Queue()  # TODO мб через несколько сокетов
+        # TODO мб через несколько сокетов
+        self.senderQueue = multiprocessing.Manager().Queue()
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind(("", self.communicationPort))
 
@@ -57,7 +58,8 @@ class Communicator:
                 packet = json.dumps(packet)
 
                 for addr in addrs:
-                    threading.Thread(target=self.send, args=(packet.encode("utf-8"), addr)).start()
+                    threading.Thread(target=self.send, args=(
+                        packet.encode("utf-8"), addr)).start()
 
             except queue.Empty:
                 pass

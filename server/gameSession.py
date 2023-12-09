@@ -3,6 +3,7 @@ import threading
 import queue
 import random
 import timeit
+import time
 
 
 class Player:
@@ -13,15 +14,48 @@ class Player:
 
 
 class Room:  # логика игры
-    def __init__(self):
+    def __init__(self, session):
+        self.pressed = {}
+        self.released = {}
+        self.map_name = 'map1.json'
+        # TODO подумать над организацией отправки пакетов из метода simulate
+        self.session: Session = session
+        self.dynamic = [{
+            "type": "box",
+            "id": 1,
+            "position": [5, 5],
+            "vector": [0, 0]
+        }]
+
+    def simulate(self):  # здесь проверяются pressed и released и просчитывается логика
+        self.session.sendSceneData(
+            self.session.getAllPlayersAddrs(), self.session.generateSceneData(self.dynamic, []))
+
+        print(list(self.pressed.values()))
+
+        if self.pressed:
+            if 'left' in list(self.pressed.values())[0]:
+                self.dynamic[0]['vector'][0] = -0.1
+            elif 'right' in list(self.pressed.values())[0]:
+                self.dynamic[0]['vector'][0] = 0.1
+
+        if self.released:
+            self.dynamic[0]['vector'][0] = 0
+
+        self.dynamic[0]['position'][0] += self.dynamic[0]['vector'][0]
+
         self.pressed = {}
         self.released = {}
 
-    def simulate(self):  # здесь проверяются pressed и released и просчитывается логика
-        pass
+        print(self.dynamic[0]['position'])
+
+        time.sleep(0.017)
 
     def addInput(self, pressed, released, uid):
-        pass
+        if pressed:
+            self.pressed[uid] = pressed
+        if released:
+            self.released[uid] = released
 
     def removePlayer(self, uid):
         pass
@@ -32,28 +66,40 @@ class Session:
         self.queue = q
         self.sendQueue = sq
         self.players = {}
-        self.simFreq = 100  # частота симуляции (кадров в секунду)
-        self.sendFreq = 10  # частота отправки текущего состояния комнаты, (сообщений в секунду)
+        self.simFreq = 20  # частота симуляции (кадров в секунду)
+        # частота отправки текущего состояния комнаты, (сообщений в секунду)
+        self.sendFreq = 20
         self.chatHistory = []
         self.chatLimit = 20
-        self.room = Room()
+        self.room = Room(self)
 
     def simulate(self):
         while True:
+            self.room.simulate()
+
             try:
                 command, addr = self.queue.get(False)
                 try:
-                    threading.Thread(target=self.handleCommand, args=(command, addr)).start()
+                    threading.Thread(target=self.handleCommand,
+                                     args=(command, addr)).start()
                 except Exception as exc:
-                    print(f"Unexpected exception during command processing:\n {exc}")
+                    print(
+                        f"Unexpected exception during command processing:\n {exc}")
             except queue.Empty:
                 pass
 
     def generatePlayersData(self):
         pass
 
-    def generateRoomData(self):
-        pass
+    def generateSceneData(self, append: list, remove: list):
+        return {
+            "type": "scene_data",
+            "static": self.room.map_name,
+            "dynamic": {
+                "append": append,
+                "remove": remove
+            }
+        }
 
     def generateConnectionData(self, uid, action):
         if action == "connect":
@@ -70,6 +116,9 @@ class Session:
             "type": "chat_data",
             "messages": self.chatHistory
         }
+
+    def sendSceneData(self, addrs: list, scene_data):
+        self.sendQueue.put((addrs, scene_data))
 
     def sendMessage(self, addrs: list, message):
         self.sendQueue.put((addrs, message))
@@ -102,8 +151,11 @@ class Session:
                 self.players[uid] = Player(uid, name, addr)
                 packet = self.generateConnectionData(uid, action)
                 self.sendMessage(self.getAllPlayersAddrs(), packet)
-                self.addMessage("system", f"{self.players[uid].name} connected")
-                self.sendMessage(self.getAllPlayersAddrs(), self.generateChatData())
+                self.addMessage(
+                    "system", f"{self.players[uid].name} connected")
+                time.sleep(0.1)  # TODO исправить этот костыль
+                self.sendMessage(self.getAllPlayersAddrs(),
+                                 self.generateChatData())
 
             elif action == "disconnect":
                 uid = command["uid"]
@@ -126,7 +178,8 @@ class Session:
     def addMessage(self, name, text):
         self.chatHistory.append({"author": name, "text": text})
         if len(self.chatHistory) > self.chatLimit:
-            self.chatHistory = self.chatHistory[len(self.chatHistory)-self.chatLimit:]
+            self.chatHistory = self.chatHistory[len(
+                self.chatHistory)-self.chatLimit:]
 
     def genShortUID(self):
         return "".join([random.choice(string.ascii_letters + string.digits) for _ in range(8)])

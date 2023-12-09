@@ -12,7 +12,7 @@ class Game:
 
     def __init__(self, uid):
         self.uid = uid
-        self.scene = None
+        self.scene = Scene()
         self.messages = []
 
     def loop_tick(self, events):
@@ -22,18 +22,18 @@ class Game:
                 packet = server_interface.received_packets.pop()
 
                 if packet['type'] == 'scene_data':
-                    if packet['static']['method'] == 'file':
-                        self.scene = Scene(
-                            packet['static']['file'], packet['dynamic'])
+                    if 'static' in packet:
+                        self.scene.loadStatic(packet['static'])
+                    if 'dynamic' in packet:
+                        self.scene.loadDynamic(
+                            packet['dynamic']['append'])  # TODO временно
 
                 elif packet['type'] == 'chat_data':
                     text = ''
-
                     self.messages = packet['messages']
 
             except Exception as e:
                 pass
-
 
         # process logic
         for event in events:
@@ -43,7 +43,7 @@ class Game:
                         self.uid, managers.send_message_field.text)
                     managers.send_message_field.set_text('')
 
-        if self.scene:
+        if self.scene.dynamic:
             for d in self.scene.dynamic:
                 d['position'][0] += d['vector'][0] / global_scope.FPS
                 d['position'][1] += d['vector'][1] / global_scope.FPS
@@ -67,20 +67,21 @@ class Game:
         # draw
         global_scope.WINDOW_SURFACE.fill((0, 0, 0))
 
-        if self.scene:
+        if self.scene.background:
             global_scope.WINDOW_SURFACE.blit(
-                self.scene.image, (0, 0))
+                self.scene.background, (0, 0))
 
+        if self.scene.static:
             for y in range(len(self.scene.static)):
                 for x in range(len(self.scene.static[0])):
                     if self.scene.static[y][x] == '#':
                         global_scope.WINDOW_SURFACE.blit(
-                            global_scope.STEEL1_SPRITE, (x*global_scope.GRID_SIZE, y*global_scope.GRID_SIZE))
+                            global_scope.SPRITES['stone'], (x*global_scope.GRID_SIZE, y*global_scope.GRID_SIZE))
 
+        if self.scene.dynamic:
             for d in self.scene.dynamic:
-                if d['type'] == 'box1':
-                    global_scope.WINDOW_SURFACE.blit(
-                        global_scope.BOX1_SPRITE, (d['position'][0]*global_scope.GRID_SIZE, d['position'][1]*global_scope.GRID_SIZE))
+                global_scope.WINDOW_SURFACE.blit(
+                    global_scope.SPRITES[d['type']], (d['position'][0]*global_scope.GRID_SIZE, d['position'][1]*global_scope.GRID_SIZE))
 
         for i, message in enumerate(self.messages):
             global_scope.WINDOW_SURFACE.blit(
@@ -88,10 +89,16 @@ class Game:
 
 
 class Scene:
-    def __init__(self, map_file, dynamic):
-        with open(os.path.join(global_scope.RESOURCES_PATH, 'maps', map_file)) as f:
-            j = json.load(f)
-            self.static = j['static']
-            self.image = global_scope.BACKGROUND1_SPRITE
+    def __init__(self):
+        self.static = None
+        self.dynamic = None
+        self.background = None
 
+    def loadStatic(self, map_file):
+        with open(os.path.join(global_scope.MAPS_PATH, map_file)) as file:
+            j = json.load(file)
+            self.static = j['static']
+            self.background = global_scope.SPRITES[j['background']]
+
+    def loadDynamic(self, dynamic):
         self.dynamic = dynamic
