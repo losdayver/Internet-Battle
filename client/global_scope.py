@@ -13,7 +13,7 @@ KEYBOARD_LAYOUT = {
     l.K_LSHIFT: 'fire'
 }
 
-SERVER_ADDRESS = ('172.20.10.3', 5888)
+SERVER_ADDRESS = ('127.0.0.1', 5888)
 SERVER_DEBUG = True
 CURRENT_MANAGER = None
 
@@ -33,6 +33,6 @@ WINDOW_SURFACE = pygame.display.set_mode(SCREEN_RESOLUTION)
 pygame.init()
 CLOCK = pygame.time.Clock()
 DEFAULT_FONT = pygame.font.Font(os.path.join(
-    RESOURCES_PATH, "fonts", "Comic Sans MS.ttf"), 12)
+    RESOURCES_PATH, "fonts", "Comic Sans MS.ttf"), 15)
 IS_RUNNING = True
 GAME = None
