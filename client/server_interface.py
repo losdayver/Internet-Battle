@@ -12,6 +12,7 @@ received_packets = []
 
 packets_to_send = []
 
+
 def loop():
     global packets_to_send, received_packets
 
@@ -70,6 +71,8 @@ class GeneratePacket:
             'pressed': pressed_list,
             'released': released_list
         }
+
+        print(packet)
 
         packets_to_send.append(packet)
 

@@ -30,7 +30,9 @@ SPRITES = {
     'stone': pygame.image.load(os.path.join(
         SPRITES_PATH, 'stone.png')),
     'box': pygame.image.load(os.path.join(
-        SPRITES_PATH, 'box.png'))
+        SPRITES_PATH, 'box.png')),
+    'player': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'pistol.png'))
 }
 
 # GLOBAL CODE

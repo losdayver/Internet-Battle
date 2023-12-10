@@ -6,7 +6,7 @@ import server_interface
 import game
 
 # Temp variables for main loop logic
-global_scope.CURRENT_MANAGER = main_menu_manager
+global_scope.CURRENT_MANAGER = connect_manager
 
 while global_scope.IS_RUNNING:
     global_scope.WINDOW_SURFACE.fill((0, 100, 0))
