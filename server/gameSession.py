@@ -4,6 +4,8 @@ import queue
 import random
 import timeit
 import time
+import json
+import os
 
 
 class Player:
@@ -24,14 +26,13 @@ class Session:
 
         self.pressed = {}
         self.released = {}
-        # TODO реализовать загрузку карты с диска
         self.map_name = 'map1.json'
-        self.dynamic = [{
-            'type': 'box',
-            'id': 1,
-            'position': [5, 5],
-            'vector': [0.5, 0.5]
-        }]
+
+        # TODO Временно решение для заглушки информации о карте
+        with open(os.path.join(os.path.dirname(__file__), '..', 'resources', 'maps', self.map_name)) as file:
+            j = json.load(file)
+            self.static = j['static']
+            self.dynamic = j['dynamic']
 
     def simulate(self):
         while True:
@@ -55,8 +56,6 @@ class Session:
         self.sendSceneData(
             self.getAllPlayersAddrs(), self.generateSceneData(self.dynamic, []))
 
-        print(self.pressed, self.released)
-
         for uid in self.pressed.keys():
             playerDynamic = self.findDynamicPlayer(uid)
 
@@ -64,10 +63,21 @@ class Session:
                 playerDynamic['vector'][0] = -200 / self.simFreq
             if 'right' in self.pressed[uid]:
                 playerDynamic['vector'][0] = 200 / self.simFreq
+            if 'jump' in self.pressed[uid]:
+                playerDynamic['vector'][1] = -400 / self.simFreq
 
         for d in self.dynamic:
+            # TODO Прописать логику столкновения с блоками карты
+
+            if d['type'] == 'player':
+                d['vector'][1] = min(
+                    d['vector'][1] + 10 / self.simFreq, 300 / self.simFreq)
+
             d['position'][0] += d['vector'][0] / self.simFreq
             d['position'][1] += d['vector'][1] / self.simFreq
+
+            if d['type'] == 'player':
+                d['position'][1] = min(d['position'][1], 14)
 
         for uid in self.released.keys():
             playerDynamic = self.findDynamicPlayer(uid)
@@ -195,7 +205,7 @@ class Session:
         self.dynamic.append({
             'type': 'player',
             'id': max_id,
-            'position': [6, 6],
+            'position': [6, 14],
             'vector': [0, 0],
             'uid': uid
         })

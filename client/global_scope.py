@@ -4,7 +4,7 @@ import os
 
 # VARIABLES
 SCREEN_RESOLUTION = (800, 600)
-FPS = 30
+FPS = 60
 KEYBOARD_LAYOUT = {
     l.K_UP: 'jump',
     l.K_LEFT: 'left',
@@ -32,7 +32,7 @@ SPRITES = {
     'box': pygame.image.load(os.path.join(
         SPRITES_PATH, 'box.png')),
     'player': pygame.image.load(os.path.join(
-        SPRITES_PATH, 'pistol.png'))
+        SPRITES_PATH, 'mushroom_00.png'))
 }
 
 # GLOBAL CODE
