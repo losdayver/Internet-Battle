@@ -56,28 +56,49 @@ class Session:
         self.sendSceneData(
             self.getAllPlayersAddrs(), self.generateSceneData(self.dynamic, []))
 
+        uidOnGround = []
+
+        for d in self.dynamic:
+            d['position'][0] += d['vector'][0]
+            d['position'][1] += d['vector'][1]
+
+            if d['type'] == 'player':
+                d['vector'][1] = min(d['vector'][1] + 2 /
+                                     self.simFreq, 30 / self.simFreq)
+
+                try:
+                    down = self.static[int((d['position'][1] + 65) %
+                                           32 + 1)][int(d['position'][0]):int((d['position'][0] + 32) % 32 + 2)]
+
+                    up = self.static[int((d['position'][1]) %
+                                         32)][int(d['position'][0]):int((d['position'][0] + 32) % 32 + 2)]
+
+                    print(up)
+
+                    if '#' in up:
+                        d['position'][1] = int(d['position'][1] + 1)
+                        d['vector'][1] = 0
+
+                    # TODO исправить костыль с #
+                    if '#' in down:
+                        d['position'][1] = int(d['position'][1])
+
+                        d['vector'][1] = 0
+
+                        uidOnGround.append(d['uid'])
+
+                except:
+                    pass
+
         for uid in self.pressed.keys():
             playerDynamic = self.findDynamicPlayer(uid)
 
             if 'left' in self.pressed[uid]:
-                playerDynamic['vector'][0] = -200 / self.simFreq
+                playerDynamic['vector'][0] = -10 / self.simFreq
             if 'right' in self.pressed[uid]:
-                playerDynamic['vector'][0] = 200 / self.simFreq
-            if 'jump' in self.pressed[uid]:
-                playerDynamic['vector'][1] = -400 / self.simFreq
-
-        for d in self.dynamic:
-            # TODO Прописать логику столкновения с блоками карты
-
-            if d['type'] == 'player':
-                d['vector'][1] = min(
-                    d['vector'][1] + 10 / self.simFreq, 300 / self.simFreq)
-
-            d['position'][0] += d['vector'][0] / self.simFreq
-            d['position'][1] += d['vector'][1] / self.simFreq
-
-            if d['type'] == 'player':
-                d['position'][1] = min(d['position'][1], 14)
+                playerDynamic['vector'][0] = 10 / self.simFreq
+            if 'jump' in self.pressed[uid] and uid in uidOnGround:
+                playerDynamic['vector'][1] = -25 / self.simFreq
 
         for uid in self.released.keys():
             playerDynamic = self.findDynamicPlayer(uid)
