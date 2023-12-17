@@ -18,7 +18,7 @@ def loop():
 
     while global_scope.IS_RUNNING:
         try:
-            data, server_address = client_sock.recvfrom(1024)
+            data, server_address = client_sock.recvfrom(4096)
 
             # Here packets are decoded, tested for errors and a put into received_packets
 

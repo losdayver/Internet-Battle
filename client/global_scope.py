@@ -32,7 +32,9 @@ SPRITES = {
     'box': pygame.image.load(os.path.join(
         SPRITES_PATH, 'box.png')),
     'player': pygame.image.load(os.path.join(
-        SPRITES_PATH, 'mushroom_00.png'))
+        SPRITES_PATH, 'mushroom_00.png')),
+    'pistol_bullet': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'pistol_bullet.png'))
 }
 
 # GLOBAL CODE

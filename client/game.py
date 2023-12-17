@@ -94,8 +94,8 @@ class Scene:
         self.dynamic = None
         self.background = None
 
-    def loadStatic(self, map_file):
-        with open(os.path.join(global_scope.MAPS_PATH, map_file)) as file:
+    def loadStatic(self, map_name):
+        with open(os.path.join(global_scope.MAPS_PATH, map_name + '.json')) as file:
             j = json.load(file)
             self.static = j['static']
             self.background = global_scope.SPRITES[j['background']]

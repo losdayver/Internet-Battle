@@ -1,0 +1,11 @@
+{
+    "player": {
+        "dimensions": [32, 64]
+    },
+    "box": {
+        "dimensions": [32, 32]
+    },
+    "pistol_bullet": {
+        "dimensions": [5, 5]
+    }
+}

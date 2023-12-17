@@ -7,64 +7,45 @@ import time
 import json
 import os
 
-
-class Player:
-    def __init__(self, uid, name, addr):
-        self.uid = uid
-        self.name = name
-        self.addr = addr
+MAPS_PATH = os.path.join(os.path.dirname(__file__), '..', 'resources', 'maps')
+DYNAMIC_INFO = os.path.join(os.path.dirname(
+    __file__), '..', 'resources', 'misc', 'dynamic_info.json')
+SIM_FREQ = 40
 
 
-class Session:
-    def __init__(self, q, sq):
-        self.queue = q
-        self.sendQueue = sq
-        self.players = {}
-        self.simFreq = 40  # частота симуляции (кадров в секунду)
-        self.chatHistory = []
-        self.chatLimit = 20
+# TODO организовать хранение данных сцены в отдельном классе
 
-        self.pressed = {}
-        self.released = {}
-        self.map_name = 'map1.json'
 
-        # TODO Временно решение для заглушки информации о карте
-        with open(os.path.join(os.path.dirname(__file__), '..', 'resources', 'maps', self.map_name)) as file:
+class Scene:
+    def __init__(self):
+        self.map_name = 'map1'
+
+        with open(os.path.join(MAPS_PATH, self.map_name + '.json')) as file:
             j = json.load(file)
             self.static = j['static']
             self.dynamic = j['dynamic']
 
-    def simulate(self):
-        while True:
-            start_time = time.time()
+    def generateSceneUpdatePacket(self):
+        return {
+            'type': 'scene_data',
+            'static': self.map_name,
+            'dynamic': {
+                'append': self.dynamic,
+                'remove': {}
+            }
+        }
 
-            try:
-                command, addr = self.queue.get(False)
+    def generateSceneDiffPacket(self):
+        pass
 
-                self.handleCommand(command, addr)
-            except queue.Empty:
-                pass
-
-            self.sceneSimulate()
-
-            end_time = time.time()
-
-            if end_time - start_time < 1/self.simFreq:
-                time.sleep(1/self.simFreq - (end_time - start_time))
-
-    def sceneSimulate(self):
-        self.sendSceneData(
-            self.getAllPlayersAddrs(), self.generateSceneData(self.dynamic, []))
-
-        uidOnGround = []
-
+    def processPhysics(self):
         for d in self.dynamic:
             d['position'][0] += d['vector'][0]
             d['position'][1] += d['vector'][1]
 
             if d['type'] == 'player':
                 d['vector'][1] = min(d['vector'][1] + 2 /
-                                     self.simFreq, 30 / self.simFreq)
+                                     SIM_FREQ, 30 / SIM_FREQ)
 
                 try:
                     down = self.static[int((d['position'][1] + 65) %
@@ -85,44 +66,120 @@ class Session:
 
                         d['vector'][1] = 0
 
-                        uidOnGround.append(d['uid'])
+                        d['onGround'] = True
+                    else:
+                        d['onGround'] = False
 
                 except:
                     pass
 
-        for uid in self.pressed.keys():
+    def processPlayerInput(self, pressed, released):
+        for uid in pressed.keys():
             playerDynamic = self.findDynamicPlayer(uid)
 
-            if 'left' in self.pressed[uid]:
-                playerDynamic['vector'][0] = -10 / self.simFreq
-            if 'right' in self.pressed[uid]:
-                playerDynamic['vector'][0] = 10 / self.simFreq
-            if 'jump' in self.pressed[uid] and uid in uidOnGround:
-                playerDynamic['vector'][1] = -25 / self.simFreq
+            if 'left' in pressed[uid]:
+                playerDynamic['vector'][0] = -10 / SIM_FREQ
+                playerDynamic['facing'] = 'left'
+            if 'right' in pressed[uid]:
+                playerDynamic['vector'][0] = 10 / SIM_FREQ
+                playerDynamic['facing'] = 'right'
+            if 'jump' in pressed[uid] and playerDynamic['onGround']:
+                playerDynamic['vector'][1] = -25 / SIM_FREQ
+            if 'fire' in pressed[uid]:
+                # TODO сделать систему спавна объектов на карте
+                self.dynamic.append({
+                    "type": "pistol_bullet",
+                    "id": self.findAvalibleId(),
+                    "position": self.findDynamicPlayer(uid)['position'].copy(),
+                    "vector": [20 / SIM_FREQ if playerDynamic['facing'] == 'right' else -20 / SIM_FREQ, 0]
+                })
 
-        for uid in self.released.keys():
+        for uid in released.keys():
             playerDynamic = self.findDynamicPlayer(uid)
 
-            if 'left' in self.released[uid] and playerDynamic['vector'][0] < 0:
+            if 'left' in released[uid] and playerDynamic['vector'][0] < 0:
                 playerDynamic['vector'][0] = 0
-            if 'right' in self.released[uid] and playerDynamic['vector'][0] > 0:
+            if 'right' in released[uid] and playerDynamic['vector'][0] > 0:
                 playerDynamic['vector'][0] = 0
+
+    def findAvalibleId(self):
+        max_id = 0
+
+        for d in self.dynamic:
+            max_id = max(d['id'], max_id)
+
+        return max_id + 1
+
+    def addDynamicPlayer(self, uid):
+        # TODO Задокументировать какие дополнительные
+        # поля могут быть у каких объектов
+        # и какие из них нужно отправить клиенту
+        self.dynamic.append({
+            'type': 'player',
+            'id': self.findAvalibleId(),
+            'position': [6, 14],
+            'vector': [0, 0],
+            'uid': uid,
+            'facing': 'right',
+            'onGround': False
+        })
+
+    def findDynamicPlayer(self, uid):
+        for d in self.dynamic:
+            if d['type'] == 'player' and d['uid'] == uid:
+                return d
+
+
+class Player:
+    def __init__(self, uid, name, addr):
+        self.uid = uid
+        self.name = name
+        self.addr = addr
+
+
+class Session:
+    def __init__(self, q, sq):
+        self.queue = q
+        self.sendQueue = sq
+        self.players = {}
+        self.chatHistory = []
+        self.chatLimit = 20
+
+        self.pressed = {}
+        self.released = {}
+
+        self.scene = Scene()
+
+    def simulate(self):
+        while True:
+            start_time = time.time()
+
+            try:
+                command, addr = self.queue.get(False)
+
+                self.handleCommand(command, addr)
+            except queue.Empty:
+                pass
+
+            self.sceneSimulate()
+
+            end_time = time.time()
+
+            if end_time - start_time < 1/SIM_FREQ:
+                time.sleep(1/SIM_FREQ - (end_time - start_time))
+
+    def sceneSimulate(self):
+        self.sendSceneData(
+            self.getAllPlayersAddrs(), self.scene.generateSceneUpdatePacket())
+
+        self.scene.processPlayerInput(self.pressed, self.released)
+        self.scene.processPhysics()
 
         self.pressed = {}
         self.released = {}
 
     def generatePlayersData(self):
         pass
-
-    def generateSceneData(self, append: list, remove: list):
-        return {
-            'type': 'scene_data',
-            'static': self.map_name,
-            'dynamic': {
-                'append': append,
-                'remove': remove
-            }
-        }
 
     def generateConnectionData(self, uid, action):
         if action == 'connect':
@@ -184,7 +241,7 @@ class Session:
                 time.sleep(0.1)  # TODO исправить этот костыль
                 self.sendMessage(self.getAllPlayersAddrs(),
                                  self.generateChatData())
-                self.addDynamicPlayer(uid)
+                self.scene.addDynamicPlayer(uid)
 
             elif action == 'disconnect':
                 uid = command['uid']
@@ -214,24 +271,3 @@ class Session:
     # TODO сделать уникальным
     def genShortUID(self):
         return ''.join([random.choice(string.ascii_letters + string.digits) for _ in range(8)])
-
-    def addDynamicPlayer(self, uid):
-        max_id = 0
-
-        for d in self.dynamic:
-            max_id = max(d['id'], max_id)
-
-        max_id += 1
-
-        self.dynamic.append({
-            'type': 'player',
-            'id': max_id,
-            'position': [6, 14],
-            'vector': [0, 0],
-            'uid': uid
-        })
-
-    def findDynamicPlayer(self, uid):
-        for d in self.dynamic:
-            if d['type'] == 'player' and d['uid'] == uid:
-                return d
