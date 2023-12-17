@@ -6,10 +6,13 @@ import timeit
 import time
 import json
 import os
+import math
 
 MAPS_PATH = os.path.join(os.path.dirname(__file__), '..', 'resources', 'maps')
-DYNAMIC_INFO = os.path.join(os.path.dirname(
-    __file__), '..', 'resources', 'misc', 'dynamic_info.json')
+DYNAMIC_INFO = None
+with open(os.path.join(os.path.dirname(
+        __file__), '..', 'resources', 'misc', 'dynamic_info.json')) as file:
+    DYNAMIC_INFO = json.load(file)
 SIM_FREQ = 40
 
 
@@ -39,60 +42,64 @@ class Scene:
         pass
 
     def processPhysics(self):
+        def testEmpty(s):
+            for i in s:
+                if i != '.':
+                    return False
+
+            return True
+
+        def testPlayerIntersect(new_pos):
+            intersects = False
+
+            for line in self.static[int(new_pos[1]):int(math.ceil(new_pos[1] + DYNAMIC_INFO['player']['dimensions'][1]))]:
+                cells = line[int(math.floor(new_pos[0])):int(
+                    math.ceil(new_pos[0] + DYNAMIC_INFO['player']['dimensions'][0]))]
+
+                if not testEmpty(cells):
+                    intersects = True
+                    break
+
+            return intersects
+
         for d in self.dynamic:
-            d['position'][0] += d['vector'][0]
-            d['position'][1] += d['vector'][1]
-
             if d['type'] == 'player':
-                d['vector'][1] = min(d['vector'][1] + 2 /
-                                     SIM_FREQ, 30 / SIM_FREQ)
+                d['vector'][1] = min(
+                    d['vector'][1] + 0.5 / SIM_FREQ, 20 / SIM_FREQ)
 
-                try:
-                    down = self.static[int((d['position'][1] + 65) %
-                                           32 + 1)][int(d['position'][0]):int((d['position'][0] + 32) % 32 + 2)]
+                d['onGround'] = False
 
-                    up = self.static[int((d['position'][1]) %
-                                         32)][int(d['position'][0]):int((d['position'][0] + 32) % 32 + 2)]
-
-                    print(up)
-
-                    if '#' in up:
-                        d['position'][1] = int(d['position'][1] + 1)
-                        d['vector'][1] = 0
-
-                    # TODO исправить костыль с #
-                    if '#' in down:
-                        d['position'][1] = int(d['position'][1])
-
-                        d['vector'][1] = 0
-
+                if testPlayerIntersect([d['position'][0], d['position'][1] + d['vector'][1]]):
+                    if d['vector'][1] > 0:
+                        d['position'][1] = math.ceil(d['position'][1])
                         d['onGround'] = True
                     else:
-                        d['onGround'] = False
+                        d['position'][1] = int(d['position'][1])
 
-                except:
-                    pass
+                    d['vector'][1] = 0
+
+                if testPlayerIntersect([d['position'][0] + d['vector'][0], d['position'][1]]):
+                    if d['vector'][0] > 0:
+                        d['position'][0] = math.ceil(d['position'][0])
+                    else:
+                        d['position'][0] = int(d['position'][0])
+                else:
+                    d['position'][0] += d['vector'][0]
+
+                d['position'][1] += d['vector'][1]
 
     def processPlayerInput(self, pressed, released):
         for uid in pressed.keys():
             playerDynamic = self.findDynamicPlayer(uid)
 
             if 'left' in pressed[uid]:
-                playerDynamic['vector'][0] = -10 / SIM_FREQ
+                playerDynamic['vector'][0] = -7 / SIM_FREQ
                 playerDynamic['facing'] = 'left'
             if 'right' in pressed[uid]:
-                playerDynamic['vector'][0] = 10 / SIM_FREQ
+                playerDynamic['vector'][0] = 7 / SIM_FREQ
                 playerDynamic['facing'] = 'right'
             if 'jump' in pressed[uid] and playerDynamic['onGround']:
-                playerDynamic['vector'][1] = -25 / SIM_FREQ
-            if 'fire' in pressed[uid]:
-                # TODO сделать систему спавна объектов на карте
-                self.dynamic.append({
-                    "type": "pistol_bullet",
-                    "id": self.findAvalibleId(),
-                    "position": self.findDynamicPlayer(uid)['position'].copy(),
-                    "vector": [20 / SIM_FREQ if playerDynamic['facing'] == 'right' else -20 / SIM_FREQ, 0]
-                })
+                playerDynamic['vector'][1] = -15 / SIM_FREQ
 
         for uid in released.keys():
             playerDynamic = self.findDynamicPlayer(uid)
@@ -117,7 +124,7 @@ class Scene:
         self.dynamic.append({
             'type': 'player',
             'id': self.findAvalibleId(),
-            'position': [6, 14],
+            'position': [6, 10],
             'vector': [0, 0],
             'uid': uid,
             'facing': 'right',

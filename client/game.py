@@ -45,8 +45,10 @@ class Game:
 
         if self.scene.dynamic:
             for d in self.scene.dynamic:
-                d['position'][0] += d['vector'][0] / global_scope.FPS
-                d['position'][1] += d['vector'][1] / global_scope.FPS
+                d['position'][0] += d['vector'][0] / \
+                    global_scope.FPS * global_scope.GRID_SIZE
+                d['position'][1] += d['vector'][1] / \
+                    global_scope.FPS * global_scope.GRID_SIZE
 
         # send packets
         pressed = []
@@ -71,17 +73,36 @@ class Game:
             global_scope.WINDOW_SURFACE.blit(
                 self.scene.background, (0, 0))
 
-        if self.scene.static:
-            for y in range(len(self.scene.static)):
-                for x in range(len(self.scene.static[0])):
-                    if self.scene.static[y][x] == '#':
-                        global_scope.WINDOW_SURFACE.blit(
-                            global_scope.SPRITES['stone'], (x*global_scope.GRID_SIZE, y*global_scope.GRID_SIZE))
+        centre = [0, 0]
 
         if self.scene.dynamic:
             for d in self.scene.dynamic:
-                global_scope.WINDOW_SURFACE.blit(
-                    global_scope.SPRITES[d['type']], (d['position'][0]*global_scope.GRID_SIZE, d['position'][1]*global_scope.GRID_SIZE))
+                if d['type'] == 'player':
+                    if d['uid'] == self.uid:
+                        centre[0] = d['position'][0] * global_scope.GRID_SIZE - \
+                            global_scope.SCREEN_RESOLUTION[0] / 2
+                        centre[1] = d['position'][1] * global_scope.GRID_SIZE - \
+                            global_scope.SCREEN_RESOLUTION[1] / 2
+
+        if self.scene.static:
+            for y in range(len(self.scene.static)):
+                for x in range(len(self.scene.static[0])):
+                    if self.scene.static[y][x] != '.':
+                        global_scope.WINDOW_SURFACE.blit(
+                            global_scope.SPRITES[global_scope.SYMBOLS[self.scene.static[y][x]]], (x*global_scope.GRID_SIZE - centre[0], y*global_scope.GRID_SIZE - centre[1]))
+
+        if self.scene.dynamic:
+            for d in self.scene.dynamic:
+                if d['type'] == 'player':
+                    if d['facing'] == 'right':
+                        global_scope.WINDOW_SURFACE.blit(
+                            global_scope.SPRITES[d['type']], (d['position'][0]*global_scope.GRID_SIZE - centre[0], d['position'][1]*global_scope.GRID_SIZE - centre[1]))
+                    else:
+                        global_scope.WINDOW_SURFACE.blit(
+                            pygame.transform.flip(global_scope.SPRITES[d['type']], True, False), (d['position'][0]*global_scope.GRID_SIZE - centre[0], d['position'][1]*global_scope.GRID_SIZE - centre[1]))
+                else:
+                    global_scope.WINDOW_SURFACE.blit(
+                        global_scope.SPRITES[d['type']], (d['position'][0]*global_scope.GRID_SIZE, d['position'][1]*global_scope.GRID_SIZE))
 
         for i, message in enumerate(self.messages):
             global_scope.WINDOW_SURFACE.blit(

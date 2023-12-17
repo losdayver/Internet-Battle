@@ -29,12 +29,37 @@ SPRITES = {
         SPRITES_PATH, 'starfield.png')),
     'stone': pygame.image.load(os.path.join(
         SPRITES_PATH, 'stone.png')),
+    'stone_darker': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'stone_darker.png')),
+    'metal': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'metal.png')),
+    'deep_ground': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'deep_ground.png')),
+    'metal_beam': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'metal_beam.png')),
+    'bricks': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'bricks.png')),
+    'leaves': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'leaves.png')),
+
     'box': pygame.image.load(os.path.join(
         SPRITES_PATH, 'box.png')),
     'player': pygame.image.load(os.path.join(
         SPRITES_PATH, 'mushroom_00.png')),
+    'player_jumping': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'mushroom_jumping.png')),
     'pistol_bullet': pygame.image.load(os.path.join(
         SPRITES_PATH, 'pistol_bullet.png'))
+}
+
+SYMBOLS = {
+    '=': 'stone',
+    '#': 'stone_darker',
+    '$': 'metal',
+    '&': 'deep_ground',
+    '%': 'metal_beam',
+    '-': 'bricks',
+    '*': 'leaves'
 }
 
 # GLOBAL CODE

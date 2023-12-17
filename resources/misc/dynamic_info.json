@@ -1,6 +1,7 @@
 {
+    "grid_size": 32,
     "player": {
-        "dimensions": [32, 64]
+        "dimensions": [1, 2]
     },
     "box": {
         "dimensions": [32, 32]
