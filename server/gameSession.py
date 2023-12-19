@@ -13,7 +13,7 @@ DYNAMIC_INFO = None
 with open(os.path.join(os.path.dirname(
         __file__), '..', 'resources', 'misc', 'dynamic_info.json')) as file:
     DYNAMIC_INFO = json.load(file)
-SIM_FREQ = 40
+SIM_FREQ = 30
 
 
 # TODO организовать хранение данных сцены в отдельном классе
@@ -21,7 +21,7 @@ SIM_FREQ = 40
 
 class Scene:
     def __init__(self):
-        self.map_name = 'map1'
+        self.map_name = 'battleground'
 
         with open(os.path.join(MAPS_PATH, self.map_name + '.json')) as file:
             j = json.load(file)
@@ -73,7 +73,7 @@ class Scene:
                     if d['vector'][1] > 0:
                         d['position'][1] = math.ceil(d['position'][1])
                         d['onGround'] = True
-                    else:
+                    elif d['vector'][1] < 0:
                         d['position'][1] = int(d['position'][1])
 
                     d['vector'][1] = 0
@@ -81,7 +81,7 @@ class Scene:
                 if testPlayerIntersect([d['position'][0] + d['vector'][0], d['position'][1]]):
                     if d['vector'][0] > 0:
                         d['position'][0] = math.ceil(d['position'][0])
-                    else:
+                    elif d['vector'][0] < 0:
                         d['position'][0] = int(d['position'][0])
                 else:
                     d['position'][0] += d['vector'][0]

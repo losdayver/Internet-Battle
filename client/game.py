@@ -14,8 +14,11 @@ class Game:
         self.uid = uid
         self.scene = Scene()
         self.messages = []
+        self.frame_counter = 0
 
     def loop_tick(self, events):
+        self.frame_counter += 1
+
         # process packets
         for i in range(Game.packets_per_tick):
             try:
@@ -93,20 +96,34 @@ class Game:
 
         if self.scene.dynamic:
             for d in self.scene.dynamic:
+
                 if d['type'] == 'player':
+                    sprite = None
+
+                    if not d['onGround']:
+                        sprite = global_scope.SPRITES['player_jumping']
+                    elif d['vector'][0] == 0:
+                        sprite = global_scope.SPRITES['player']
+                    else:
+                        sprite = global_scope.SPRITES['player_animation'][self.frame_counter % len(
+                            global_scope.SPRITES['player_animation'])]
+
                     if d['facing'] == 'right':
                         global_scope.WINDOW_SURFACE.blit(
-                            global_scope.SPRITES[d['type']], (d['position'][0]*global_scope.GRID_SIZE - centre[0], d['position'][1]*global_scope.GRID_SIZE - centre[1]))
+                            sprite, (d['position'][0]*global_scope.GRID_SIZE - centre[0], d['position'][1]*global_scope.GRID_SIZE - centre[1]))
                     else:
                         global_scope.WINDOW_SURFACE.blit(
-                            pygame.transform.flip(global_scope.SPRITES[d['type']], True, False), (d['position'][0]*global_scope.GRID_SIZE - centre[0], d['position'][1]*global_scope.GRID_SIZE - centre[1]))
+                            pygame.transform.flip(sprite, True, False), (d['position'][0]*global_scope.GRID_SIZE - centre[0], d['position'][1]*global_scope.GRID_SIZE - centre[1]))
                 else:
                     global_scope.WINDOW_SURFACE.blit(
                         global_scope.SPRITES[d['type']], (d['position'][0]*global_scope.GRID_SIZE, d['position'][1]*global_scope.GRID_SIZE))
 
         for i, message in enumerate(self.messages):
             global_scope.WINDOW_SURFACE.blit(
-                global_scope.DEFAULT_FONT.render(f"{message['author']}: {message['text']}", 0, [255, 255, 255]), [10, 10 + i * global_scope.DEFAULT_FONT.get_height()])
+                global_scope.DEFAULT_FONT.render(f"{message['author']}: {message['text']}", 0, [0, 0, 255]), [10, 10 + i * global_scope.DEFAULT_FONT.get_height()])
+
+        if self.frame_counter > global_scope.FPS:
+            self.frame_counter = 0
 
 
 class Scene:

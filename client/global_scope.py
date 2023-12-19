@@ -27,25 +27,71 @@ SPRITES = {
     'starfield':
     pygame.image.load(os.path.join(
         SPRITES_PATH, 'starfield.png')),
+    'abstract':
+    pygame.image.load(os.path.join(
+        SPRITES_PATH, 'abstract.png')),
+    'gory_kavkaza':
+    pygame.image.load(os.path.join(
+        SPRITES_PATH, 'gory_kavkaza.png')),
+
     'stone': pygame.image.load(os.path.join(
         SPRITES_PATH, 'stone.png')),
     'stone_darker': pygame.image.load(os.path.join(
         SPRITES_PATH, 'stone_darker.png')),
+    'reinforced_concrete': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'reinforced_concrete.png')),
     'metal': pygame.image.load(os.path.join(
         SPRITES_PATH, 'metal.png')),
-    'deep_ground': pygame.image.load(os.path.join(
-        SPRITES_PATH, 'deep_ground.png')),
     'metal_beam': pygame.image.load(os.path.join(
         SPRITES_PATH, 'metal_beam.png')),
-    'bricks': pygame.image.load(os.path.join(
-        SPRITES_PATH, 'bricks.png')),
     'leaves': pygame.image.load(os.path.join(
         SPRITES_PATH, 'leaves.png')),
+    'grass': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'grass.png')),
+    'deep_ground': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'deep_ground.png')),
+    'bricks': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'bricks.png')),
+    'box': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'box.png')),
 
     'box': pygame.image.load(os.path.join(
         SPRITES_PATH, 'box.png')),
     'player': pygame.image.load(os.path.join(
         SPRITES_PATH, 'mushroom_00.png')),
+
+    'player_animation': [
+        pygame.image.load(os.path.join(
+            SPRITES_PATH, 'mushroom_00.png')),
+
+        pygame.image.load(os.path.join(
+            SPRITES_PATH, 'mushroom_01.png')),
+
+        pygame.image.load(os.path.join(
+            SPRITES_PATH, 'mushroom_02.png')),
+
+        pygame.image.load(os.path.join(
+            SPRITES_PATH, 'mushroom_03.png')),
+
+        pygame.image.load(os.path.join(
+            SPRITES_PATH, 'mushroom_04.png')),
+
+        pygame.image.load(os.path.join(
+            SPRITES_PATH, 'mushroom_05.png')),
+
+        pygame.image.load(os.path.join(
+            SPRITES_PATH, 'mushroom_06.png')),
+
+        pygame.image.load(os.path.join(
+            SPRITES_PATH, 'mushroom_07.png')),
+
+        pygame.image.load(os.path.join(
+            SPRITES_PATH, 'mushroom_08.png')),
+
+        pygame.image.load(os.path.join(
+            SPRITES_PATH, 'mushroom_09.png'))
+    ],
+
     'player_jumping': pygame.image.load(os.path.join(
         SPRITES_PATH, 'mushroom_jumping.png')),
     'pistol_bullet': pygame.image.load(os.path.join(
@@ -55,11 +101,14 @@ SPRITES = {
 SYMBOLS = {
     '=': 'stone',
     '#': 'stone_darker',
+    'E': 'reinforced_concrete',
     '$': 'metal',
-    '&': 'deep_ground',
     '%': 'metal_beam',
-    '-': 'bricks',
-    '*': 'leaves'
+    '*': 'leaves',
+    '*': 'grass',
+    '&': 'deep_ground',
+    '+': 'bricks',
+    'x': 'box'
 }
 
 # GLOBAL CODE
