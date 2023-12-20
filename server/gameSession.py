@@ -62,6 +62,8 @@ class Scene:
 
             return intersects
 
+        toDelete = []
+
         for d in self.dynamic:
             if d['type'] == 'player':
                 d['vector'][1] = min(
@@ -77,6 +79,8 @@ class Scene:
                         d['position'][1] = int(d['position'][1])
 
                     d['vector'][1] = 0
+                else:
+                    d['position'][1] += d['vector'][1]
 
                 if testPlayerIntersect([d['position'][0] + d['vector'][0], d['position'][1]]):
                     if d['vector'][0] > 0:
@@ -85,8 +89,15 @@ class Scene:
                         d['position'][0] = int(d['position'][0])
                 else:
                     d['position'][0] += d['vector'][0]
-
+            else:
+                d['position'][0] += d['vector'][0]
                 d['position'][1] += d['vector'][1]
+
+            if d['position'][0] > len(self.static[0]) or d['position'][1] > len(self.static) or d['position'][0] < 0 or d['position'][1] < 0:
+                toDelete.append(d)
+
+        for d in toDelete:
+            self.dynamic.remove(d)
 
     def processPlayerInput(self, pressed, released):
         for uid in pressed.keys():
@@ -100,6 +111,10 @@ class Scene:
                 playerDynamic['facing'] = 'right'
             if 'jump' in pressed[uid] and playerDynamic['onGround']:
                 playerDynamic['vector'][1] = -15 / SIM_FREQ
+
+            if 'fire' in pressed[uid]:
+                self.addDynamicShotgunBullet(
+                    uid, [playerDynamic['position'][0], playerDynamic['position'][1] + 0.5], [25 / SIM_FREQ if playerDynamic['facing'] == 'right' else -25 / SIM_FREQ, 0])
 
         for uid in released.keys():
             playerDynamic = self.findDynamicPlayer(uid)
@@ -128,7 +143,20 @@ class Scene:
             'vector': [0, 0],
             'uid': uid,
             'facing': 'right',
-            'onGround': False
+            'onGround': False,
+            'gun': 'shotgun'
+        })
+
+    def addDynamicShotgunBullet(self, uid, position, vector):
+        # TODO Задокументировать какие дополнительные
+        # поля могут быть у каких объектов
+        # и какие из них нужно отправить клиенту
+        self.dynamic.append({
+            'type': 's_bullet',
+            'id': self.findAvalibleId(),
+            'position': position,
+            'vector': vector,
+            'uid': uid
         })
 
     def findDynamicPlayer(self, uid):

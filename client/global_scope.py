@@ -94,7 +94,11 @@ SPRITES = {
 
     'player_jumping': pygame.image.load(os.path.join(
         SPRITES_PATH, 'mushroom_jumping.png')),
-    'pistol_bullet': pygame.image.load(os.path.join(
+    'shotgun': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'shotgun.png')),
+    's_bullet': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'shotgun_bullet.png')),
+    'p_bullet': pygame.image.load(os.path.join(
         SPRITES_PATH, 'pistol_bullet.png'))
 }
 

@@ -114,9 +114,18 @@ class Game:
                     else:
                         global_scope.WINDOW_SURFACE.blit(
                             pygame.transform.flip(sprite, True, False), (d['position'][0]*global_scope.GRID_SIZE - centre[0], d['position'][1]*global_scope.GRID_SIZE - centre[1]))
+
+                    if d['gun']:
+                        if d['facing'] == 'right':
+                            global_scope.WINDOW_SURFACE.blit(
+                                global_scope.SPRITES[d['gun']], (d['position'][0]*global_scope.GRID_SIZE - centre[0], d['position'][1]*global_scope.GRID_SIZE - centre[1] + 30))
+                        else:
+                            global_scope.WINDOW_SURFACE.blit(
+                                pygame.transform.flip(global_scope.SPRITES[d['gun']], True, False), (d['position'][0]*global_scope.GRID_SIZE - centre[0], d['position'][1]*global_scope.GRID_SIZE - centre[1] + 30))
+
                 else:
                     global_scope.WINDOW_SURFACE.blit(
-                        global_scope.SPRITES[d['type']], (d['position'][0]*global_scope.GRID_SIZE, d['position'][1]*global_scope.GRID_SIZE))
+                        global_scope.SPRITES[d['type']], (d['position'][0]*global_scope.GRID_SIZE - centre[0], d['position'][1]*global_scope.GRID_SIZE - centre[1]))
 
         for i, message in enumerate(self.messages):
             global_scope.WINDOW_SURFACE.blit(
