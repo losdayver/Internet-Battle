@@ -184,7 +184,7 @@ class Session:
         self.released = {}
 
         self.scene = Scene()
-
+    # TODO мб разделить частоты симуляции и отправки
     def simulate(self):
         while True:
             start_time = time.time()
@@ -203,6 +203,7 @@ class Session:
             if end_time - start_time < 1/SIM_FREQ:
                 time.sleep(1/SIM_FREQ - (end_time - start_time))
 
+    # TODO вынести отправку пакетов за пределы симуляции, данный метод будет возвращать только список пакетов на отправку
     def sceneSimulate(self):
         self.sendSceneData(
             self.getAllPlayersAddrs(), self.scene.generateSceneUpdatePacket())
