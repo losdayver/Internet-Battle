@@ -22,11 +22,14 @@ SIM_FREQ = 30
 class Scene:
     def __init__(self):
         self.map_name = 'battleground'
+        self.playersCount = 0
+        self.winner = None
 
         with open(os.path.join(MAPS_PATH, self.map_name + '.json')) as file:
             j = json.load(file)
             self.static = j['static']
             self.dynamic = j['dynamic']
+            self.spawns = j['spawns']
 
     def generateSceneUpdatePacket(self):
         return {
@@ -115,11 +118,15 @@ class Scene:
             self.dynamic.remove(d)
 
     def processPlayerInput(self, pressed, released):
+        print(pressed)
+
         for uid in pressed.keys():
             playerDynamic = self.findDynamicPlayer(uid)
 
             if playerDynamic['dead']:
                 continue
+
+            print('123')
 
             if 'left' in pressed[uid]:
                 playerDynamic['vector'][0] = -7 / SIM_FREQ
@@ -150,21 +157,58 @@ class Scene:
 
         return max_id + 1
 
-    def addDynamicPlayer(self, uid):
+    def addDynamicPlayer(self, uid, name, readyToJoin=True):
+        self.playersCount += 1
         # TODO Задокументировать какие дополнительные
         # поля могут быть у каких объектов
         # и какие из них нужно отправить клиенту
         self.dynamic.append({
             'type': 'player',
             'id': self.findAvalibleId(),
-            'position': [6, 10],
+            'position': self.spawns[self.playersCount-1],
             'vector': [0, 0],
             'uid': uid,
             'facing': 'right',
             'onGround': False,
             'gun': 'shotgun',
-            'dead': False
+            'dead': False if readyToJoin else True,
+            'name': name,
         })
+
+    def getAliveCount(self):
+        count = 0
+        for dObject in self.dynamic:
+            if dObject["type"] == "player":
+                if not dObject["dead"]:
+                    count += 1
+
+        return count
+
+    def removePlayer(self, uid):
+        objectToDelete = None
+        for dObject in self.dynamic:
+            if dObject["type"] == "player":
+                if dObject["uid"] == uid:
+                    objectToDelete = dObject
+                    break
+
+        if objectToDelete:
+            self.playersCount -= 1
+            self.dynamic.remove(objectToDelete)
+
+    def needToReload(self):
+        count = self.getAliveCount()
+
+        if self.playersCount > 1 and count == 1:
+            for dObject in self.dynamic:
+                if dObject["type"] == "player":
+                    if not dObject["dead"]:
+                        self.winner = dObject["uid"]
+
+        if self.playersCount > 1 and count in [0, 1]:
+            return True
+
+        return False
 
     def addDynamicShotgunBullet(self, uid, position, vector):
         # TODO Задокументировать какие дополнительные
@@ -199,6 +243,7 @@ class Player:
         self.uid = uid
         self.name = name
         self.addr = addr
+        self.score = 0
 
 
 class Session:
@@ -235,6 +280,22 @@ class Session:
 
     # TODO вынести отправку пакетов за пределы симуляции, данный метод будет возвращать только список пакетов на отправку
     def sceneSimulate(self):
+        if self.scene.needToReload():
+            if self.scene.winner in self.players.keys():
+                self.players[self.scene.winner] += 1
+
+            self.scene = Scene()
+
+            scoresMessage = ""
+            for uid, data in self.players.items():
+                scoresMessage += f"{data.name}: {data.score}, "
+                self.scene.addDynamicPlayer(uid, data.name)
+
+            if scoresMessage:
+                self.addMessage("system", scoresMessage)
+                packet = self.generateChatData()
+                self.sendMessage(self.getAllPlayersAddrs(), packet)
+
         self.sendSceneData(
             self.getAllPlayersAddrs(), self.scene.generateSceneUpdatePacket())
 
@@ -297,6 +358,10 @@ class Session:
         if packetType == 'connection':
             action = command['action']
             if action == 'connect':
+                if self.scene.playersCount == 4:
+                    self.sendMessage(addr, {"type": "connection", "action": "reject",
+                                            "reason": "The room is full!"})
+                    return
                 name = command['name']
                 uid = self.genShortUID()
                 self.players[uid] = Player(uid, name, addr)
@@ -304,15 +369,17 @@ class Session:
                 self.sendMessage(self.getAllPlayersAddrs(), packet)
                 self.addMessage(
                     'system', f'{self.players[uid].name} connected')
-                time.sleep(0.1)  # TODO исправить этот костыль
+                time.sleep(0.1)
                 self.sendMessage(self.getAllPlayersAddrs(),
                                  self.generateChatData())
-                self.scene.addDynamicPlayer(uid)
+                readyToJoin = True
+                if self.scene.getAliveCount() > 1:
+                    readyToJoin = False
+                self.scene.addDynamicPlayer(uid, name, readyToJoin)
 
             elif action == 'disconnect':
                 uid = command['uid']
                 self.removePlayer(uid)
-                del self.players[uid]
 
         elif packetType == 'input':
             uid = command['uid']
