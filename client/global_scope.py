@@ -25,8 +25,8 @@ MAPS_PATH = os.path.join(RESOURCES_PATH, 'maps')
 
 pygame.mixer.init()
 
-MUSIC = pygame.mixer.music.load(
-    os.path.join(RESOURCES_PATH, 'music', 'song1.wav'))
+MENU_SONG = os.path.join(RESOURCES_PATH, 'music', 'song2.mp3')
+GAME_SONG = os.path.join(RESOURCES_PATH, 'music', 'song1.wav')
 
 
 SPRITES = {
@@ -123,7 +123,7 @@ SYMBOLS = {
     'E': 'reinforced_concrete',
     '$': 'metal',
     '%': 'metal_beam',
-    '*': 'leaves',
+    '~': 'leaves',
     '*': 'grass',
     '&': 'deep_ground',
     '+': 'bricks',

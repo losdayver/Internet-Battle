@@ -67,7 +67,7 @@ class Scene:
 
         def testPointIntersecrs(position):
             try:
-                return self.static[math.ceil(position[1])][math.ceil(position[0])] != '.'
+                return self.static[int(position[1])][int(position[0])] != '.'
             except:
                 return False
 
@@ -76,7 +76,7 @@ class Scene:
         for d in self.dynamic:
             if d['type'] == 'player':
                 d['vector'][1] = min(
-                    d['vector'][1] + 0.5 / SIM_FREQ, 20 / SIM_FREQ)
+                    d['vector'][1] + 0.8 / SIM_FREQ, 30 / SIM_FREQ)
 
                 d['onGround'] = False
 
@@ -134,13 +134,13 @@ class Scene:
                 continue
 
             if 'left' in pressed[uid]:
-                playerDynamic['vector'][0] = -7 / SIM_FREQ
+                playerDynamic['vector'][0] = -10 / SIM_FREQ
                 playerDynamic['facing'] = 'left'
             if 'right' in pressed[uid]:
-                playerDynamic['vector'][0] = 7 / SIM_FREQ
+                playerDynamic['vector'][0] = 10 / SIM_FREQ
                 playerDynamic['facing'] = 'right'
             if 'jump' in pressed[uid] and playerDynamic['onGround']:
-                playerDynamic['vector'][1] = -15 / SIM_FREQ
+                playerDynamic['vector'][1] = -23 / SIM_FREQ
 
             if 'fire' in pressed[uid]:
                 self.addDynamicShotgunBullet(

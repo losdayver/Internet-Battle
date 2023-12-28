@@ -4,6 +4,6 @@
         "dimensions": [1, 2]
     },
     "s_bullet": {
-        "dimensions": [0.1, 0.1]
+        "dimensions": [1, 1]
     }
 }

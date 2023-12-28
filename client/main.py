@@ -5,6 +5,8 @@ import pygame
 import server_interface
 import game
 
+pygame.mixer.music.load(global_scope.MENU_SONG)
+pygame.mixer.music.play(loops=-1)
 
 # Temp variables for main loop logic
 global_scope.CURRENT_MANAGER = main_menu_manager
@@ -57,7 +59,8 @@ while global_scope.IS_RUNNING:
                     global_scope.GAME = game.Game(packet['uid'])
                     global_scope.CURRENT_MANAGER = game_manager
                     current_state = 'game'
-                    pygame.mixer.music.play()
+                    pygame.mixer.music.load(global_scope.GAME_SONG)
+                    pygame.mixer.music.play(loops=-1)
                 elif packet['action'] == 'reject':
                     status_text_field.set_text(packet['reason'])
 
