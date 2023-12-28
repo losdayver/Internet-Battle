@@ -3,10 +3,7 @@
     "player": {
         "dimensions": [1, 2]
     },
-    "box": {
-        "dimensions": [32, 32]
-    },
-    "pistol_bullet": {
-        "dimensions": [5, 5]
+    "s_bullet": {
+        "dimensions": [0.1, 0.1]
     }
 }

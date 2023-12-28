@@ -89,6 +89,21 @@ class Scene:
                         d['position'][0] = int(d['position'][0])
                 else:
                     d['position'][0] += d['vector'][0]
+            elif d['type'] == 's_bullet':
+                center_x = d['position'][0] + \
+                    DYNAMIC_INFO['s_bullet']['dimensions'][0] / 2
+                center_y = d['position'][1] + \
+                    DYNAMIC_INFO['s_bullet']['dimensions'][1] / 2
+
+                for p in self.dynamic:
+                    if p['type'] == 'player' and p['uid'] != d['uid'] and not p['dead']:
+                        if p['position'][0] < center_x < p['position'][0] + DYNAMIC_INFO['player']['dimensions'][0] and \
+                                p['position'][1] < center_y < p['position'][1] + DYNAMIC_INFO['player']['dimensions'][1]:
+                            toDelete.append(d)
+                            p['dead'] = True
+
+                d['position'][0] += d['vector'][0]
+                d['position'][1] += d['vector'][1]
             else:
                 d['position'][0] += d['vector'][0]
                 d['position'][1] += d['vector'][1]
@@ -102,6 +117,9 @@ class Scene:
     def processPlayerInput(self, pressed, released):
         for uid in pressed.keys():
             playerDynamic = self.findDynamicPlayer(uid)
+
+            if playerDynamic['dead']:
+                continue
 
             if 'left' in pressed[uid]:
                 playerDynamic['vector'][0] = -7 / SIM_FREQ
@@ -144,7 +162,8 @@ class Scene:
             'uid': uid,
             'facing': 'right',
             'onGround': False,
-            'gun': 'shotgun'
+            'gun': 'shotgun',
+            'dead': False
         })
 
     def addDynamicShotgunBullet(self, uid, position, vector):
@@ -163,6 +182,16 @@ class Scene:
         for d in self.dynamic:
             if d['type'] == 'player' and d['uid'] == uid:
                 return d
+
+    def deleteDynamicById(self, id):
+        dynamicToDelete = None
+
+        for d in self.dynamic:
+            if d['id'] == id:
+                dynamicToDelete = d
+
+        if dynamicToDelete:
+            self.dynamic.remove(dynamicToDelete)
 
 
 class Player:
@@ -185,6 +214,7 @@ class Session:
 
         self.scene = Scene()
     # TODO мб разделить частоты симуляции и отправки
+
     def simulate(self):
         while True:
             start_time = time.time()

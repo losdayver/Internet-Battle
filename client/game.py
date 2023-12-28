@@ -96,11 +96,12 @@ class Game:
 
         if self.scene.dynamic:
             for d in self.scene.dynamic:
-
                 if d['type'] == 'player':
                     sprite = None
 
-                    if not d['onGround']:
+                    if d['dead']:
+                        sprite = global_scope.SPRITES['player_dead']
+                    elif not d['onGround']:
                         sprite = global_scope.SPRITES['player_jumping']
                     elif d['vector'][0] == 0:
                         sprite = global_scope.SPRITES['player']
@@ -115,7 +116,7 @@ class Game:
                         global_scope.WINDOW_SURFACE.blit(
                             pygame.transform.flip(sprite, True, False), (d['position'][0]*global_scope.GRID_SIZE - centre[0], d['position'][1]*global_scope.GRID_SIZE - centre[1]))
 
-                    if d['gun']:
+                    if d['gun'] and not d['dead']:
                         if d['facing'] == 'right':
                             global_scope.WINDOW_SURFACE.blit(
                                 global_scope.SPRITES[d['gun']], (d['position'][0]*global_scope.GRID_SIZE - centre[0], d['position'][1]*global_scope.GRID_SIZE - centre[1] + 30))

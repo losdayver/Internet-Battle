@@ -13,7 +13,7 @@ KEYBOARD_LAYOUT = {
     l.K_LSHIFT: 'fire'
 }
 
-SERVER_ADDRESS = ('172.20.10.2', 5888)
+SERVER_ADDRESS = ('127.0.0.1', 5888)
 SERVER_DEBUG = True
 CURRENT_MANAGER = None
 
@@ -59,6 +59,8 @@ SPRITES = {
         SPRITES_PATH, 'box.png')),
     'player': pygame.image.load(os.path.join(
         SPRITES_PATH, 'mushroom_00.png')),
+    'player_dead': pygame.image.load(os.path.join(
+        SPRITES_PATH, 'mushroom_dead.png')),
 
     'player_animation': [
         pygame.image.load(os.path.join(
