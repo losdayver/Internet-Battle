@@ -4,12 +4,9 @@ import pygame_gui
 
 
 main_menu_manager = pygame_gui.UIManager(global_scope.SCREEN_RESOLUTION)
-start_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((250, 200), (300, 50)),
+start_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((250, 275), (300, 50)),
                                             text='Start Game',
                                             manager=main_menu_manager)
-settings_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((250, 275), (300, 50)),
-                                               text='Settings',
-                                               manager=main_menu_manager)
 exit_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((250, 345), (300, 50)),
                                            text='Exit',
                                            manager=main_menu_manager)

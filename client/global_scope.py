@@ -23,7 +23,17 @@ RESOURCES_PATH = os.path.join(os.path.dirname(
 SPRITES_PATH = os.path.join(RESOURCES_PATH, 'sprites', 'export')
 MAPS_PATH = os.path.join(RESOURCES_PATH, 'maps')
 
+pygame.mixer.init()
+
+MUSIC = pygame.mixer.music.load(
+    os.path.join(RESOURCES_PATH, 'music', 'song1.wav'))
+
+
 SPRITES = {
+    'logo':
+    pygame.image.load(os.path.join(
+        SPRITES_PATH, 'logo.png')),
+
     'starfield':
     pygame.image.load(os.path.join(
         SPRITES_PATH, 'starfield.png')),
@@ -33,6 +43,9 @@ SPRITES = {
     'gory_kavkaza':
     pygame.image.load(os.path.join(
         SPRITES_PATH, 'gory_kavkaza.png')),
+    'forest':
+    pygame.image.load(os.path.join(
+        SPRITES_PATH, 'forest.png')),
 
     'stone': pygame.image.load(os.path.join(
         SPRITES_PATH, 'stone.png')),

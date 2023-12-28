@@ -13,7 +13,7 @@ DYNAMIC_INFO = None
 with open(os.path.join(os.path.dirname(
         __file__), '..', 'resources', 'misc', 'dynamic_info.json')) as file:
     DYNAMIC_INFO = json.load(file)
-SIM_FREQ = 30
+SIM_FREQ = 45
 
 
 # TODO организовать хранение данных сцены в отдельном классе
@@ -65,6 +65,12 @@ class Scene:
 
             return intersects
 
+        def testPointIntersecrs(position):
+            try:
+                return self.static[math.ceil(position[1])][math.ceil(position[0])] != '.'
+            except:
+                return False
+
         toDelete = []
 
         for d in self.dynamic:
@@ -98,16 +104,18 @@ class Scene:
                 center_y = d['position'][1] + \
                     DYNAMIC_INFO['s_bullet']['dimensions'][1] / 2
 
+                if testPointIntersecrs([center_x, center_y]):
+                    toDelete.append(d)
+                    continue
+
                 for p in self.dynamic:
                     if p['type'] == 'player' and p['uid'] != d['uid'] and not p['dead']:
                         if p['position'][0] < center_x < p['position'][0] + DYNAMIC_INFO['player']['dimensions'][0] and \
                                 p['position'][1] < center_y < p['position'][1] + DYNAMIC_INFO['player']['dimensions'][1]:
                             toDelete.append(d)
                             p['dead'] = True
+                            continue
 
-                d['position'][0] += d['vector'][0]
-                d['position'][1] += d['vector'][1]
-            else:
                 d['position'][0] += d['vector'][0]
                 d['position'][1] += d['vector'][1]
 
@@ -118,15 +126,12 @@ class Scene:
             self.dynamic.remove(d)
 
     def processPlayerInput(self, pressed, released):
-        print(pressed)
 
         for uid in pressed.keys():
             playerDynamic = self.findDynamicPlayer(uid)
 
             if playerDynamic['dead']:
                 continue
-
-            print('123')
 
             if 'left' in pressed[uid]:
                 playerDynamic['vector'][0] = -7 / SIM_FREQ
@@ -139,7 +144,7 @@ class Scene:
 
             if 'fire' in pressed[uid]:
                 self.addDynamicShotgunBullet(
-                    uid, [playerDynamic['position'][0], playerDynamic['position'][1] + 0.5], [25 / SIM_FREQ if playerDynamic['facing'] == 'right' else -25 / SIM_FREQ, 0])
+                    uid, [playerDynamic['position'][0], playerDynamic['position'][1] + 0.9], [32 / SIM_FREQ if playerDynamic['facing'] == 'right' else -32 / SIM_FREQ, 0])
 
         for uid in released.keys():
             playerDynamic = self.findDynamicPlayer(uid)
@@ -282,7 +287,7 @@ class Session:
     def sceneSimulate(self):
         if self.scene.needToReload():
             if self.scene.winner in self.players.keys():
-                self.players[self.scene.winner] += 1
+                self.players[self.scene.winner].score += 1
 
             self.scene = Scene()
 
@@ -292,7 +297,7 @@ class Session:
                 self.scene.addDynamicPlayer(uid, data.name)
 
             if scoresMessage:
-                self.addMessage("system", scoresMessage)
+                self.addMessage("server", scoresMessage)
                 packet = self.generateChatData()
                 self.sendMessage(self.getAllPlayersAddrs(), packet)
 
@@ -352,6 +357,16 @@ class Session:
                     packet = ''
                     self.sendMessage(self.getAllPlayersAddrs(), packet)
 
+    def removePlayer(self, uid):
+        toRemove = None
+
+        for u in self.players.keys():
+            if u == uid:
+                toRemove = u
+
+        if toRemove:
+            del self.players[uid]
+
     def handleCommand(self, command, addr):
         packetType = command['type']
 
@@ -359,8 +374,8 @@ class Session:
             action = command['action']
             if action == 'connect':
                 if self.scene.playersCount == 4:
-                    self.sendMessage(addr, {"type": "connection", "action": "reject",
-                                            "reason": "The room is full!"})
+                    self.sendMessage([addr], {"type": "connection", "action": "reject",
+                                              "reason": "The room is full!"})
                     return
                 name = command['name']
                 uid = self.genShortUID()
@@ -368,7 +383,7 @@ class Session:
                 packet = self.generateConnectionData(uid, action)
                 self.sendMessage(self.getAllPlayersAddrs(), packet)
                 self.addMessage(
-                    'system', f'{self.players[uid].name} connected')
+                    'server', f'{self.players[uid].name} connected')
                 time.sleep(0.1)
                 self.sendMessage(self.getAllPlayersAddrs(),
                                  self.generateChatData())
@@ -379,7 +394,11 @@ class Session:
 
             elif action == 'disconnect':
                 uid = command['uid']
+                self.addMessage('server', f'{self.players[uid].name} left')
+                packet = self.generateChatData()
+                self.sendMessage(self.getAllPlayersAddrs(), packet)
                 self.removePlayer(uid)
+                self.scene.removePlayer(uid)
 
         elif packetType == 'input':
             uid = command['uid']

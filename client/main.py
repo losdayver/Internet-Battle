@@ -5,11 +5,12 @@ import pygame
 import server_interface
 import game
 
+
 # Temp variables for main loop logic
-global_scope.CURRENT_MANAGER = connect_manager
+global_scope.CURRENT_MANAGER = main_menu_manager
 
 while global_scope.IS_RUNNING:
-    global_scope.WINDOW_SURFACE.fill((0, 100, 0))
+    global_scope.WINDOW_SURFACE.blit(global_scope.SPRITES['forest'], (0, 0))
 
     time_delta = global_scope.CLOCK.tick(global_scope.FPS)/1000.0
 
@@ -19,6 +20,10 @@ while global_scope.IS_RUNNING:
         if event.type == pygame.QUIT:
             global_scope.IS_RUNNING = False
 
+            if global_scope.CURRENT_MANAGER == game_manager:
+                server_interface.GeneratePacket.disconnect(
+                    global_scope.GAME.uid)
+
         # UI elements logic
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
 
@@ -27,8 +32,6 @@ while global_scope.IS_RUNNING:
                 if event.ui_element == start_button:
 
                     global_scope.CURRENT_MANAGER = connect_manager
-                elif event.ui_element == settings_button:
-                    settings_button.hide()
                 elif event.ui_element == exit_button:
                     global_scope.IS_RUNNING = False
 
@@ -54,11 +57,15 @@ while global_scope.IS_RUNNING:
                     global_scope.GAME = game.Game(packet['uid'])
                     global_scope.CURRENT_MANAGER = game_manager
                     current_state = 'game'
+                    pygame.mixer.music.play()
                 elif packet['action'] == 'reject':
                     status_text_field.set_text(packet['reason'])
 
     elif global_scope.CURRENT_MANAGER == game_manager:
         global_scope.GAME.loop_tick(events)
+    elif global_scope.CURRENT_MANAGER == main_menu_manager:
+        global_scope.WINDOW_SURFACE.blit(
+            global_scope.SPRITES['logo'], (-15, 40))
 
     global_scope.CURRENT_MANAGER.update(time_delta)
 

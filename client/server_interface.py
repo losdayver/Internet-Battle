@@ -72,8 +72,6 @@ class GeneratePacket:
             'released': released_list
         }
 
-        print(packet)
-
         packets_to_send.append(packet)
 
     @staticmethod
