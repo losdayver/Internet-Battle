@@ -21,7 +21,7 @@ SIM_FREQ = 45
 
 class Scene:
     def __init__(self):
-        self.map_name = 'battleground'
+        self.map_name = random.choice(['battleground', 'battleground2'])
         self.playersCount = 0
         self.winner = None
 
