@@ -79,7 +79,7 @@ class Communicator:
                         if addr in data[2]:
                             self.gameSessions[sessionId][2].remove(addr)
                             break
-                    return
+                    continue
                 packet = json.dumps(packet)
 
                 for addr in addrs:
