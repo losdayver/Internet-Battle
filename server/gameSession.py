@@ -298,6 +298,7 @@ class Session:
                 self.scene.addDynamicPlayer(uid, data.name)
 
             if scoresMessage:
+                scoresMessage = scoresMessage[:-2]
                 self.addMessage("server", scoresMessage)
                 packet = self.generateChatData()
                 self.sendMessage(self.getAllPlayersAddrs(), packet)
