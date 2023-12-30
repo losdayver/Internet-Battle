@@ -21,7 +21,7 @@ SIM_FREQ = 45
 
 class Scene:
     def __init__(self):
-        self.map_name = random.choice(['battleground', 'battleground2'])
+        self.map_name = random.choice(['battleground', 'battleground2', 'battleground3'])
         self.playersCount = 0
         self.winner = None
 
@@ -258,7 +258,7 @@ class Session:
         self.players = {}
         self.chatHistory = []
         self.plCount = plCount
-        self.chatLimit = 20
+        self.chatLimit = 7
 
         self.pressed = {}
         self.released = {}
