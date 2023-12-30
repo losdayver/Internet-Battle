@@ -15,15 +15,6 @@
 }
 ```
 
-Дисконнект:
-```json
-{
-    "type": "connection",
-    "uid": <uid>,
-    "action": "disconnect",
-}
-```
-
 Запрос отключение от сервера. Клиент должен передать свой uid:
 ```json
 {
@@ -43,7 +34,10 @@
 }
 ```
 
-Отправка сообщения:
+Множество возможных нажатий:
+'left', 'right', 'jump', 'fire'
+
+Отправка сообщения в чат:
 ```json
 {
     "uid": uid,
@@ -90,7 +84,7 @@
 ```json
 {
     "type": "scene_data",
-    "static": "map1.json",
+    "static": "<название_карты>",
     "dynamic": {
       "append": [{
             "type": "box1",
