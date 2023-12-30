@@ -252,11 +252,12 @@ class Player:
 
 
 class Session:
-    def __init__(self, q, sq):
+    def __init__(self, q, sq, plCount):
         self.queue = q
         self.sendQueue = sq
         self.players = {}
         self.chatHistory = []
+        self.plCount = plCount
         self.chatLimit = 20
 
         self.pressed = {}
@@ -366,6 +367,7 @@ class Session:
 
         if toRemove:
             del self.players[uid]
+            self.plCount[0] -= 1
 
     def handleCommand(self, command, addr):
         packetType = command['type']
@@ -380,6 +382,7 @@ class Session:
                 name = command['name']
                 uid = self.genShortUID()
                 self.players[uid] = Player(uid, name, addr)
+                self.plCount[0] += 1
                 packet = self.generateConnectionData(uid, action)
                 self.sendMessage(self.getAllPlayersAddrs(), packet)
                 self.addMessage(
@@ -399,6 +402,7 @@ class Session:
                 self.sendMessage(self.getAllPlayersAddrs(), packet)
                 self.removePlayer(uid)
                 self.scene.removePlayer(uid)
+                self.sendMessage([], {"delete": addr})
 
         elif packetType == 'input':
             uid = command['uid']
