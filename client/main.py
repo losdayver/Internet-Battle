@@ -4,6 +4,16 @@ import pygame_gui
 import pygame
 import server_interface
 import game
+import signal
+import sys
+
+def signal_handler(signal, frame):
+    print('You pressed Ctrl+C!')
+    pygame.quit()
+    global_scope.IS_RUNNING = False
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
 
 pygame.mixer.music.load(global_scope.MENU_SONG)
 pygame.mixer.music.play(loops=-1)
